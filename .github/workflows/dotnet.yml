@@ -1,0 +1,28 @@
+﻿name: Build .NET Project
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Check out repository
+      uses: actions/checkout@v3
+
+    - name: 🧰 Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'  # Justera om du använder annan version
+
+    - name: 📦 Restore dependencies
+      run: dotnet restore
+
+    - name: 🧱 Build project
+      run: dotnet build --configuration Release --no-restore
+
+    # (valfritt, du kan lägga till test-steg senare)

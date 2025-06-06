@@ -56,7 +56,7 @@ namespace MP_Backend.Services.Auth
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
-                return (false, "E-posten hittas inte"); // 
+                return (false, "E-posten hittas inte");
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 return (false, "Du måste bekräfta din e-post först.");
