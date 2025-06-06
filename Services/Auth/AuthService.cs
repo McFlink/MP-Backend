@@ -54,7 +54,7 @@ namespace MP_Backend.Services.Auth
 
         public async Task<(bool Success, string? Error)> LoginAsync(LoginDTO dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
+            var user = await _userManager.FindByEmailAsync(dto.Email); // 
             if (user == null)
                 return (false, "E-posten hittas inte");
 
