@@ -1,7 +1,4 @@
-﻿
-
-
-using SendGrid;
+﻿using SendGrid;
 using SendGrid.Helpers.Mail;
 
 namespace MP_Backend.Services.Email
