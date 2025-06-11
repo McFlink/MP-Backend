@@ -35,6 +35,13 @@ namespace MP_Backend.Controllers
             return Ok("Inloggad");
         }
 
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.LogoutAsync(Response);
+            return Ok(new { message = "Logged out successfully" });
+        }
+
         [HttpGet("confirmemail")]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {

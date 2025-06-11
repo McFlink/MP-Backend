@@ -11,6 +11,7 @@ namespace MP_Backend.Services.Auth
     {
         Task<bool> RegisterAsync(RegisterDTO dto);
         Task<(bool Success, string? Error)> LoginAsync(LoginDTO dto);
+        Task LogoutAsync(HttpResponse response);
         string? GetCurrentUserId();
     }
 
@@ -75,6 +76,13 @@ namespace MP_Backend.Services.Auth
 
             return (true, null);
         }
+
+        public Task LogoutAsync(HttpResponse response)
+        {
+            response.Cookies.Delete("jwt");
+            return Task.CompletedTask;
+        }
+
 
         public string? GetCurrentUserId()
         {
