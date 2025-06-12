@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MP_Backend.Data;
+using MP_Backend.Infrastructure.Data;
 using MP_Backend.Infrastructure.Identity;
 using MP_Backend.Services.Auth;
 using MP_Backend.Services.Email;
@@ -125,6 +126,7 @@ namespace MP_Backend
             {
                 var services = scope.ServiceProvider;
                 await RoleSeeder.SeedAsync(services);
+                await ProductSeeder.SeedAsync(services);
             }
             
             app.Run();
