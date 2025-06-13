@@ -2,7 +2,7 @@
 {
     public class ProductVariantDTO
     {
-        public Guid VariantId { get; set; }
+        public Guid Id { get; set; }
         public string? Scent { get; set; }
         public string? Color { get; set; }
         public string? Size { get; set; }

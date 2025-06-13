@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MP_Backend.Models.DTOs;
 using MP_Backend.Services.Products;
 
 namespace MP_Backend.Controllers
@@ -15,9 +16,16 @@ namespace MP_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<ProductSummaryDTO>>> GetAll(CancellationToken ct)
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetSummariesAsync(ct);
+            return Ok(products);
+        }
+
+        [HttpGet("detailed")]
+        public async Task<ActionResult<List<ProductDTO>>> GetAllWithVariantsAsync(CancellationToken ct)
+        {
+            var products = await _productService.GetAllProductsDetailedAsync(ct);
             return Ok(products);
         }
     }
