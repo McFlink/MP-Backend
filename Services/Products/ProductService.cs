@@ -1,4 +1,5 @@
 ﻿using MP_Backend.Data.Repositories.Products;
+using MP_Backend.Mappers;
 using MP_Backend.Models.DTOs;
 
 namespace MP_Backend.Services.Products
@@ -6,38 +7,39 @@ namespace MP_Backend.Services.Products
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly ILogger<ProductService> _logger;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
         {
             _productRepository = productRepository;
+            _logger = logger;
         }
 
-        public async Task<List<ProductDTO>> GetAllProductsAsync()
+        public async Task<List<ProductDTO>> GetAllProductsDetailedAsync(CancellationToken ct)
         {
             try
             {
-                var products = await _productRepository.GetAllWithVariantsAsync();
-
-                return products.Select(p => new ProductDTO
-                {
-                    ProductId = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Category = p.Category,
-                    Variants = p.Variants.Select(v => new ProductVariantDTO
-                    {
-                        VariantId = v.Id,
-                        Scent = v.Scent,
-                        Color = v.Color,
-                        Size = v.Size,
-                        Price = v.Price,
-                    }).ToList()
-                }).ToList();
+                var products = await _productRepository.GetAllWithVariantsAsync(ct);
+                return ProductMapper.ToDetailedDtoList(products);
             }
             catch (Exception ex)
             {
-                // Implement logging
-                throw new Exception("Error when fetching all products with variants", ex);
+                _logger.LogError(ex, "Error while fetching products including variants");
+                throw;
+            }
+        }
+
+        public async Task<List<ProductSummaryDTO>> GetSummariesAsync(CancellationToken ct)
+        {
+            try
+            {
+                var products = await _productRepository.GetAllAsync(ct);
+                return ProductMapper.ToSummaryDTOList(products);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while fetching products");
+                throw;
             }
         }
     }

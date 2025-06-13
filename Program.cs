@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +7,12 @@ using MP_Backend.Data;
 using MP_Backend.Data.Repositories.Products;
 using MP_Backend.Infrastructure.Data;
 using MP_Backend.Infrastructure.Identity;
+using MP_Backend.Infrastructure.Middleware;
 using MP_Backend.Services.Auth;
 using MP_Backend.Services.Email;
 using MP_Backend.Services.Products;
 using System.Text;
+using Serilog;
 using System.Threading.Tasks;
 
 namespace MP_Backend
@@ -108,7 +109,18 @@ namespace MP_Backend
                 });
             });
 
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                //.WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
+
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseRouting();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
