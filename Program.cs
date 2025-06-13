@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MP_Backend.Data;
+using MP_Backend.Data.Repositories.Products;
 using MP_Backend.Infrastructure.Data;
 using MP_Backend.Infrastructure.Identity;
 using MP_Backend.Services.Auth;
 using MP_Backend.Services.Email;
+using MP_Backend.Services.Products;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,8 +36,14 @@ namespace MP_Backend
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            // Base services
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+
+            // Base repositories
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<IAppEmailSender, SendGridEmailSender>();
