@@ -7,10 +7,10 @@
         public Guid ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
-        public string? Scent { get; set; }     // ex: "Kräfta" (för Sticky)
-        public string? Color { get; set; }     // ex: "Green Pumpkin" (för gummibete)
-        public string? Size { get; set; }      // ex: "14cm"
+        public string? Scent { get; set; }
+        public string? Color { get; set; }
+        public string? Size { get; set; }
 
-        public decimal? Price { get; set; }    // Valfritt
+        public decimal? Price { get; set; }    // Should retailers see price?
     }
 }
