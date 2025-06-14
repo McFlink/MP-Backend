@@ -14,6 +14,8 @@ using MP_Backend.Services.Products;
 using System.Text;
 using Serilog;
 using System.Threading.Tasks;
+using MP_Backend.Services.Orders;
+using MP_Backend.Data.Repositories.Orders;
 
 namespace MP_Backend
 {
@@ -41,9 +43,11 @@ namespace MP_Backend
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
             // Base repositories
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
             builder.Services.AddHttpContextAccessor();
 

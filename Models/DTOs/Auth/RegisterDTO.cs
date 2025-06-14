@@ -1,4 +1,4 @@
-﻿namespace MP_Backend.Models.DTOs
+﻿namespace MP_Backend.Models.DTOs.Auth
 {
     public class RegisterDTO
     {

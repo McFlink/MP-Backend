@@ -1,4 +1,4 @@
-﻿namespace MP_Backend.Models.DTOs
+﻿namespace MP_Backend.Models.DTOs.Products
 {
     public class ProductVariantDTO
     {

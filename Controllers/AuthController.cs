@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MP_Backend.Models.DTOs;
+using MP_Backend.Models.DTOs.Auth;
 using MP_Backend.Services.Auth;
 
 namespace MP_Backend.Controllers
