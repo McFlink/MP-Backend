@@ -14,8 +14,6 @@ namespace MP_Backend.Models
         public string Address { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public bool IsRetailer { get; set; }
-
         public string? NationalId { get; set; } // For individuals (BankId)
         public string? OrganizationNumber { get; set; } // For organizations
 

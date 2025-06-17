@@ -13,9 +13,6 @@ namespace MP_Backend.Data.Repositories.Orders
             _context = ctx;
         }
 
-        // Put in Order model
-        public bool OrderConfirmationEmailSent { get; set; } = false;
-
         public async Task<Order?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
         {
             return await _context.Orders
@@ -41,7 +38,7 @@ namespace MP_Backend.Data.Repositories.Orders
         public async Task<List<Order>> GetPreviousOrdersSummaryAsync(Guid userId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userId && OrderConfirmationEmailSent)
+                .Where(o => o.UserProfileId == userId && o.OrderConfirmationEmailSent)
                 .AsNoTracking()
                 .ToListAsync(ct);
         }
@@ -49,7 +46,7 @@ namespace MP_Backend.Data.Repositories.Orders
         public async Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userId && OrderConfirmationEmailSent)
+                .Where(o => o.UserProfileId == userId && o.OrderConfirmationEmailSent)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.ProductVariant)
                         .ThenInclude(pv => pv.Product)

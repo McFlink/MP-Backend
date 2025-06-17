@@ -8,6 +8,7 @@
         public UserProfile UserProfile { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool OrderConfirmationEmailSent { get; set; } = false;
 
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }

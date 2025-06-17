@@ -23,7 +23,7 @@ namespace MP_Backend.Services.Orders
         {
             try
             {
-                return null; // Placeholder for actual order creation logic
+                throw new NotImplementedException();
             }
             catch (Exception ex)
             {
