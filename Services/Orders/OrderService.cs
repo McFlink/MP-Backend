@@ -1,5 +1,6 @@
 ﻿using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Models.DTOs.Orders;
+using System.Security.Claims;
 
 namespace MP_Backend.Services.Orders
 {
@@ -21,7 +22,14 @@ namespace MP_Backend.Services.Orders
 
         public Task<List<OrderDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId is null) throw new UnauthorizedAccessException();
+
+            var guid = Guid.Parse(userId);
+
+            var orders = _orderRepository.GetByUserIdAsync(guid, ct);
+
+            return orders.Select(OrderMapper.ToDTOList).ToListAsync(ct); // mapper not implemented
         }
 
         public Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct)

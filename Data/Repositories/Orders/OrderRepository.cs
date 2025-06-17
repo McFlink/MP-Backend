@@ -1,4 +1,6 @@
-﻿using MP_Backend.Models.DTOs.Orders;
+﻿using Microsoft.EntityFrameworkCore;
+using MP_Backend.Models;
+using MP_Backend.Models.DTOs.Orders;
 
 namespace MP_Backend.Data.Repositories.Orders
 {
@@ -11,29 +13,14 @@ namespace MP_Backend.Data.Repositories.Orders
             _context = ctx;
         }
 
-        public Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct)
+        public async Task <List<Order>> GetByUserIdAsync(Guid userId, CancellationToken ct)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<OrderDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<OrderDTO>> GetOrdersForCurrentUserAsync(CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<OrderDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct)
-        {
-            throw new NotImplementedException();
+            return await _context.Orders
+                .Where(o => o.UserProfileId == userId)
+                .Include(o => o.Items)
+                    .ThenInclude(oi => oi.ProductVariant)
+                .AsNoTracking()
+                .ToListAsync(ct);
         }
     }
 }
