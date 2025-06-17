@@ -16,6 +16,7 @@ using Serilog;
 using System.Threading.Tasks;
 using MP_Backend.Services.Orders;
 using MP_Backend.Data.Repositories.Orders;
+using MP_Backend.Services.UserServices;
 
 namespace MP_Backend
 {
@@ -44,6 +45,7 @@ namespace MP_Backend
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IUserContextService, UserContextService>();
 
             // Base repositories
             builder.Services.AddScoped<IProductRepository, ProductRepository>();

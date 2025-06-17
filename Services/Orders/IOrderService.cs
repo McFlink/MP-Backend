@@ -5,10 +5,9 @@ namespace MP_Backend.Services.Orders
 {
     public interface IOrderService
     {
-        Task<List<OrderDTO>> GetOrdersForCurrentUserAsync(CancellationToken ct);
-        Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct);
-        Task<List<OrderDetailedDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct);
-        Task<List<OrderSummaryDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct);
+        Task<OrderSummaryDTO?> GetByOrderIdAsync(Guid orderId, CancellationToken ct);
+        Task<List<OrderSummaryDTO>> GetPreviousOrdersAsync(CancellationToken ct);
+        Task<List<OrderDetailedDTO>> GetPreviousOrdersWithDetailsAsync(CancellationToken ct);
         Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct);
     }
 }

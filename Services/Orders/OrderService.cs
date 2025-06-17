@@ -1,6 +1,7 @@
 ﻿using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Mappers;
 using MP_Backend.Models.DTOs.Orders;
+using MP_Backend.Services.UserServices;
 using System.Security.Claims;
 
 namespace MP_Backend.Services.Orders
@@ -8,44 +9,74 @@ namespace MP_Backend.Services.Orders
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserContextService _userContextService;
+        private readonly ILogger<OrderService> _logger;
 
-        public OrderService(IOrderRepository orderRepository, IHttpContextAccessor httpContextAccessor)
+        public OrderService(IOrderRepository orderRepository, IUserContextService userContextService, ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
-            _httpContextAccessor = httpContextAccessor;
+            _userContextService = userContextService;
+            _logger = logger;
         }
 
         public Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while creating order");
+                throw;
+            }
         }
 
-        public async Task<List<OrderDetailedDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct)
+        public async Task<OrderSummaryDTO?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
         {
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId is null) throw new UnauthorizedAccessException();
+            try
+            {
+                var order = await _orderRepository.GetByOrderIdAsync(orderId, ct);
+                if (order is null)
+                    throw new KeyNotFoundException($"Order with ID {orderId} not found.");
 
-            var guid = Guid.Parse(userId);
-
-            var orders = await _orderRepository.GetByUserIdAsync(guid, ct);
-
-            return OrderMapper.ToDetailedDTOList(orders);
+                return OrderMapper.ToSummaryDTO(order);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while fetching order with ID {orderId}");
+                throw;
+            }
         }
 
-        public Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct)
+        public async Task<List<OrderSummaryDTO>> GetPreviousOrdersAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var userId = _userContextService.GetCurrentUserId();
+                var orders = await _orderRepository.GetPreviousOrdersSummaryAsync(userId, ct);
+                return OrderMapper.ToSummaryDTOList(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while fetching previous orders for current user");
+                throw;
+            }
         }
 
-        public Task<List<OrderDTO>> GetOrdersForCurrentUserAsync(CancellationToken ct)
+        public async Task<List<OrderDetailedDTO>> GetPreviousOrdersWithDetailsAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<OrderSummaryDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct)
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var userId = _userContextService.GetCurrentUserId();
+                var orders = await _orderRepository.GetPreviousOrdersWithDetailsAsync(userId, ct);
+                return OrderMapper.ToDetailedDTOList(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while fetching previous orders with details for current user");
+                throw;
+            }
         }
     }
 }
