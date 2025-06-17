@@ -1,4 +1,4 @@
-﻿using MP_Backend.Models.DTOs;
+﻿using MP_Backend.Models.DTOs.Products;
 
 namespace MP_Backend.Services.Products
 {

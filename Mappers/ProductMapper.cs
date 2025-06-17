@@ -1,5 +1,5 @@
 ﻿using MP_Backend.Models;
-using MP_Backend.Models.DTOs;
+using MP_Backend.Models.DTOs.Products;
 
 namespace MP_Backend.Mappers
 {
