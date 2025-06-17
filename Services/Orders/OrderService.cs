@@ -1,4 +1,5 @@
 ﻿using MP_Backend.Data.Repositories.Orders;
+using MP_Backend.Mappers;
 using MP_Backend.Models.DTOs.Orders;
 using System.Security.Claims;
 
@@ -20,16 +21,16 @@ namespace MP_Backend.Services.Orders
             throw new NotImplementedException();
         }
 
-        public Task<List<OrderDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct)
+        public async Task<List<OrderDetailedDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct)
         {
             var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId is null) throw new UnauthorizedAccessException();
 
             var guid = Guid.Parse(userId);
 
-            var orders = _orderRepository.GetByUserIdAsync(guid, ct);
+            var orders = await _orderRepository.GetByUserIdAsync(guid, ct);
 
-            return orders.Select(OrderMapper.ToDTOList).ToListAsync(ct); // mapper not implemented
+            return OrderMapper.ToDetailedDTOList(orders);
         }
 
         public Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct)
@@ -42,7 +43,7 @@ namespace MP_Backend.Services.Orders
             throw new NotImplementedException();
         }
 
-        public Task<List<OrderDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct)
+        public Task<List<OrderSummaryDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct)
         {
             throw new NotImplementedException();
         }

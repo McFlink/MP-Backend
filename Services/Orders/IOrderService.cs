@@ -7,8 +7,8 @@ namespace MP_Backend.Services.Orders
     {
         Task<List<OrderDTO>> GetOrdersForCurrentUserAsync(CancellationToken ct);
         Task<OrderDTO?> GetOrderByIdAsync(Guid orderId, CancellationToken ct);
-        Task<List<OrderDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct);
-        Task<List<OrderDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct);
+        Task<List<OrderDetailedDTO>> GetActiveOrdersForCurrentUserAsync(CancellationToken ct);
+        Task<List<OrderSummaryDTO>> GetPreviousOrdersForCurrentUserAsync(CancellationToken ct);
         Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct);
     }
 }
