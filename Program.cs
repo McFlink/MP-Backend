@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using MP_Backend.Services.Orders;
 using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Services.UserServices;
+using MP_Backend.Data.Repositories.Users;
 
 namespace MP_Backend
 {
@@ -46,6 +47,7 @@ namespace MP_Backend
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IUserContextService, UserContextService>();
+            builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
             // Base repositories
             builder.Services.AddScoped<IProductRepository, ProductRepository>();

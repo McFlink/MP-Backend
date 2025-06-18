@@ -4,6 +4,8 @@ using System.Security.Claims;
 using MP_Backend.Controllers;
 using MP_Backend.Services.Email;
 using MP_Backend.Models.DTOs.Auth;
+using MP_Backend.Data;
+using MP_Backend.Models;
 
 namespace MP_Backend.Services.Auth
 {
@@ -22,32 +24,53 @@ namespace MP_Backend.Services.Auth
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IJwtService _jwtService;
         private readonly IAppEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public AuthService(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IHttpContextAccessor httpContextAccessor,
             IJwtService jwtService,
-            IAppEmailSender emailSender)
+            IAppEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
             _jwtService = jwtService;
             _emailSender = emailSender;
+            _context = context;
         }
 
         public async Task<bool> RegisterAsync(RegisterDTO dto)
         {
             var user = new IdentityUser { UserName = dto.Email, Email = dto.Email };
             var result = await _userManager.CreateAsync(user, dto.Password);
-
             if (!result.Succeeded) return false;
 
+            var role = dto.IsRetailer ? "Retailer" : "Customer";
+            var roleResult = await _userManager.AddToRoleAsync(user, role);
+            if (!roleResult.Succeeded) return false;
+
+            var userProfile = new UserProfile
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                PhoneNumber = dto.PhoneNumber,
+                Address = dto.Address,
+                CreatedAt = DateTime.UtcNow,
+                OrganizationNumber = dto.IsRetailer ? dto.OrganizationNumber : null,
+                BankIdVerified = false,
+                BankIdVerifiedAt = null
+            };
+
+            _context.UserProfiles.Add(userProfile);
+            await _context.SaveChangesAsync();
+
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
             var confirmationLink = $"https://localhost:7067/api/auth/confirmemail?userId={user.Id}&token={Uri.EscapeDataString(token)}";
-
             await _emailSender.SendEmailAsync(user.Email, "Verifiera ditt konto", confirmationLink);
 
             return true;

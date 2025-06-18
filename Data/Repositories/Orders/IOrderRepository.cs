@@ -9,5 +9,6 @@ namespace MP_Backend.Data.Repositories.Orders
         Task<Order?> GetByOrderIdAsync(Guid orderId, CancellationToken ct);
         Task<List<Order>> GetPreviousOrdersSummaryAsync(Guid userId, CancellationToken ct);
         Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userId, CancellationToken ct);
+        Task<Order> CreateOrderAsync(Order order, CancellationToken ct);
     }
 }

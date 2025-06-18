@@ -1,7 +1,12 @@
-﻿namespace MP_Backend.Services.UserServices
+﻿using MP_Backend.Models;
+
+namespace MP_Backend.Services.UserServices
 {
     public interface IUserContextService
     {
-        Guid GetCurrentUserId();
+        string GetCurrentIdentityUserId();
+        Task<Guid> GetCurrentUserProfileIdAsync(CancellationToken ct);
+        Task<UserProfile?> GetCurrentUserProfileAsync(CancellationToken ct);
+        Task<CurrentUserContext> GetCurrentUserWithProfileAsync(CancellationToken ct);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MP_Backend.Models.DTOs.Orders;
 using MP_Backend.Services.Orders;
 using System.Runtime.CompilerServices;
 
@@ -15,18 +16,15 @@ namespace MP_Backend.Controllers
             _orderService = orderService;
         }
 
-        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO dto, CancellationToken ct)
-        //{
-        //    try
-        //    {
-        //        var orderId = await _orderService.CreateOrderAsync(dto, ct);
-        //        return CreatedAtAction(nameof(GetByOrderId), new { orderId }, null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { message = ex.Message });
-        //    }
-        //}
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO dto, CancellationToken ct)
+        {
+            if (!dto.Items.Any())
+                return BadRequest();
+
+            var orderId = await _orderService.CreateOrderAsync(dto, ct);
+            return CreatedAtAction(nameof(GetOrderById), new { orderId }, null);
+        }
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById(Guid orderId, CancellationToken ct)
