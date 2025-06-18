@@ -40,5 +40,21 @@ namespace MP_Backend.Mappers
         {
             return orders.Select(ToSummaryDTO).ToList();
         }
+
+        public static Order MapToOrder(CreateOrderDTO dto, Guid userId)
+        {
+            return new Order
+            {
+                Id = Guid.NewGuid(),
+                UserProfileId = userId,
+                CreatedAt = DateTime.UtcNow,
+                Items = dto.Items.Select(item => new OrderItem
+                {
+                    Id = Guid.NewGuid(),
+                    ProductVariantId = item.ProductVariantId,
+                    Quantity = item.Quantity
+                }).ToList()
+            };
+        }
     }
 }

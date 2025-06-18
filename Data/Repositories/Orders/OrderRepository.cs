@@ -13,6 +13,13 @@ namespace MP_Backend.Data.Repositories.Orders
             _context = ctx;
         }
 
+        public async Task<Order> CreateOrderAsync(Order order, CancellationToken ct)
+        {
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync(ct);
+            return order;
+        }
+
         public async Task<Order?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
         {
             return await _context.Orders
@@ -24,10 +31,10 @@ namespace MP_Backend.Data.Repositories.Orders
                         .FirstOrDefaultAsync(ct);
         }
 
-        public async Task<List<Order>> GetByUserIdAsync(Guid userId, CancellationToken ct)
+        public async Task<List<Order>> GetByUserIdAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userId)
+                .Where(o => o.UserProfileId == userProfileId)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.ProductVariant)
                         .ThenInclude(pv => pv.Product)
@@ -35,18 +42,18 @@ namespace MP_Backend.Data.Repositories.Orders
                         .ToListAsync(ct);
         }
 
-        public async Task<List<Order>> GetPreviousOrdersSummaryAsync(Guid userId, CancellationToken ct)
+        public async Task<List<Order>> GetPreviousOrdersSummaryAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userId && o.OrderConfirmationEmailSent)
-                .AsNoTracking()
+                .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
+                .AsNoTracking() 
                 .ToListAsync(ct);
         }
 
-        public async Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userId, CancellationToken ct)
+        public async Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userId && o.OrderConfirmationEmailSent)
+                .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.ProductVariant)
                         .ThenInclude(pv => pv.Product)

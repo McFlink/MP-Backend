@@ -52,7 +52,7 @@ namespace MP_Backend.Controllers
             return result.Succeeded ? Ok("E-post bekräftad!") : BadRequest("Bekräftelsen misslyckades.");
         }
 
-
+        // Temporary for debug/testing
         [HttpGet("me")]
         [Authorize]
         public IActionResult Me()
