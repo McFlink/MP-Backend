@@ -78,7 +78,7 @@ namespace MP_Backend.Services.Auth
 
         public async Task<(bool Success, string? Error)> LoginAsync(LoginDTO dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email); // 
+            var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
                 return (false, "E-posten hittas inte");
 
@@ -88,7 +88,7 @@ namespace MP_Backend.Services.Auth
             if (!await _userManager.CheckPasswordAsync(user, dto.Password))
                 return (false, "Fel lösenord");
 
-            var token = _jwtService.GenerateToken(user.Id, user.Email!);
+            var token = await _jwtService.GenerateToken(user);
             _httpContextAccessor.HttpContext?.Response.Cookies.Append("jwt", token, new CookieOptions
             {
                 HttpOnly = true,
