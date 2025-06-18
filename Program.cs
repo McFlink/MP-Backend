@@ -18,6 +18,7 @@ using MP_Backend.Services.Orders;
 using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Services.UserServices;
 using MP_Backend.Data.Repositories.Users;
+using System.Security.Claims;
 
 namespace MP_Backend
 {
@@ -83,7 +84,8 @@ namespace MP_Backend
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtSettings["Secret"]!)
-                    )
+                    ),
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
 

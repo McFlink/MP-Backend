@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MP_Backend.Infrastructure.Identity;
 using MP_Backend.Models.DTOs.Orders;
 using MP_Backend.Services.Orders;
 using System.Runtime.CompilerServices;
 
 namespace MP_Backend.Controllers
 {
+    [Authorize(Roles = Roles.Retailer)]
     [ApiController]
     [Route("api/[controller]")]
     public class OrderController : ControllerBase
@@ -25,6 +28,7 @@ namespace MP_Backend.Controllers
             var orderId = await _orderService.CreateOrderAsync(dto, ct);
             return CreatedAtAction(nameof(GetOrderById), new { orderId }, null);
         }
+
 
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById(Guid orderId, CancellationToken ct)
