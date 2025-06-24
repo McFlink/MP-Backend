@@ -60,6 +60,7 @@ namespace MP_Backend.Services.Auth
                 LastName = dto.LastName,
                 PhoneNumber = dto.PhoneNumber,
                 Address = dto.Address,
+                BillingAddress = dto.IsRetailer ? dto.BillingAddress : null,
                 CreatedAt = DateTime.UtcNow,
                 OrganizationNumber = dto.IsRetailer ? dto.OrganizationNumber : null,
                 BankIdVerified = false,

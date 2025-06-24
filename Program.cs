@@ -48,11 +48,13 @@ namespace MP_Backend
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
             builder.Services.AddScoped<IUserContextService, UserContextService>();
-            builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // Base repositories
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>(); // Dont need? Put logic in UserRepo?
 
             builder.Services.AddHttpContextAccessor();
 

@@ -3,6 +3,7 @@ using System;
 using MP_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MP_Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623192835_AddedCompanyNamePropToUserProfile")]
+    partial class AddedCompanyNamePropToUserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -190,9 +193,6 @@ namespace MP_Backend.Migrations
 
                     b.Property<DateTime?>("BankIdVerifiedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("BillingAddress")
-                        .HasColumnType("text");
 
                     b.Property<string>("CompanyName")
                         .HasColumnType("text");
