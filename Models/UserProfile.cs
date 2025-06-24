@@ -12,6 +12,8 @@ namespace MP_Backend.Models
         public string LastName { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
+        public string? CompanyName { get; set; } // For organizations
+        public string? BillingAddress { get; set; } // For organizations
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public string? NationalId { get; set; } // For individuals (BankId)
