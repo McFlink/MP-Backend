@@ -26,7 +26,7 @@ namespace MP_Backend.Services.UserServices
             return await _userRepository.UpdateUserEmail(currentUser.IdentityUser.Id, newEmail, ct);
         }
 
-        public async Task<UserProfileDTO> UpdateProfileAsync(ProfileUpdateDTO dto, CancellationToken ct)
+        public async Task<UserProfileDTO> UpdateProfileAsync(UpdateProfileDTO dto, CancellationToken ct)
         {
             var currentUser = await _userContextService.GetCurrentUserWithProfileAsync(ct);
             if (currentUser == null)

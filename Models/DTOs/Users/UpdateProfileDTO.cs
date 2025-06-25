@@ -1,6 +1,6 @@
 ﻿namespace MP_Backend.Models.DTOs.Users
 {
-    public class ProfileUpdateDTO
+    public class UpdateProfileDTO
     {
         // First- and lastname for retailer is their Contact person
         public string? FirstName { get; set; }
