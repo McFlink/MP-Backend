@@ -30,7 +30,7 @@ namespace MP_Backend.Data.Repositories.Users
             return user;
         }
 
-        public async Task<UserProfile> UpdateUserProfile(Guid userProfileId, ProfileUpdateDTO dto, CancellationToken ct)
+        public async Task<UserProfile> UpdateUserProfile(Guid userProfileId, UpdateProfileDTO dto, CancellationToken ct)
         {
             var profile = _context.UserProfiles.FirstOrDefault(up => up.Id == userProfileId);
             if (profile == null)

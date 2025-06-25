@@ -7,6 +7,6 @@ namespace MP_Backend.Services.UserServices
     public interface IUserService
     {
         Task<IdentityUser> UpdateEmailAsync(string newEmail, CancellationToken ct);
-        Task<UserProfileDTO> UpdateProfileAsync(ProfileUpdateDTO dto, CancellationToken ct);
+        Task<UserProfileDTO> UpdateProfileAsync(UpdateProfileDTO dto, CancellationToken ct);
     }
 }

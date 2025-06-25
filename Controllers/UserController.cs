@@ -16,7 +16,7 @@ namespace MP_Backend.Controllers
         }
 
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateUserProfile([FromBody] ProfileUpdateDTO dto, CancellationToken ct)
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UpdateProfileDTO dto, CancellationToken ct)
         {
             var updatedProfile = await _userService.UpdateProfileAsync(dto, ct);
             return Ok(updatedProfile);

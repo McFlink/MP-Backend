@@ -7,6 +7,6 @@ namespace MP_Backend.Data.Repositories.Users
     public interface IUserRepository
     {
         Task<IdentityUser> UpdateUserEmail(string identityUserId, string newEmail, CancellationToken ct);
-        Task<UserProfile> UpdateUserProfile(Guid identityUserId, ProfileUpdateDTO dto, CancellationToken ct);
+        Task<UserProfile> UpdateUserProfile(Guid identityUserId, UpdateProfileDTO dto, CancellationToken ct);
     }
 }
