@@ -16,7 +16,8 @@ namespace MP_Backend.Mappers
                 PhoneNumber = userProfile.PhoneNumber,
                 Address = userProfile.Address,
                 BillingAddress = userProfile.BillingAddress,
-                OrganizationNumber = userProfile.OrganizationNumber
+                OrganizationNumber = userProfile.OrganizationNumber,
+                CompanyName = userProfile.CompanyName
             };
         }
     }

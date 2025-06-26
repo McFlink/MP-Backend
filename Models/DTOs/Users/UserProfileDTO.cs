@@ -8,5 +8,6 @@
         public string Address { get; set; } = null!;
         public string BillingAddress { get; set; } = null!;
         public string? OrganizationNumber { get; set; }
+        public string? CompanyName { get; set; }
     }
 }
