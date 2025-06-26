@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Users;
 
@@ -13,9 +14,21 @@ namespace MP_Backend.Data.Repositories.Users
             _context = context;
         }
 
+        public async Task<UserProfile> GetUserProfile(Guid userProfileId, CancellationToken ct)
+        {
+            var userProfile = await _context.UserProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userProfileId, ct);
+
+            if (userProfile == null)
+                throw new KeyNotFoundException("User profile not found");
+
+            return userProfile;
+        }
+
         public async Task<IdentityUser> UpdateUserEmail(string identityUserId, string newEmail, CancellationToken ct)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == identityUserId);
+            var user = await _context.Users.FindAsync(identityUserId, ct);
             if (user == null)
                 throw new KeyNotFoundException($"User not found.");
 
