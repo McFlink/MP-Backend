@@ -19,6 +19,7 @@ using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Services.UserServices;
 using MP_Backend.Data.Repositories.Users;
 using System.Security.Claims;
+using MP_Backend.Data.Repositories.ProductVariants;
 
 namespace MP_Backend
 {
@@ -54,6 +55,7 @@ namespace MP_Backend
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
             builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>(); // Dont need? Put logic in UserRepo?
 
             builder.Services.AddHttpContextAccessor();

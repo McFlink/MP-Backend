@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MP_Backend.Infrastructure.Identity;
 using MP_Backend.Models.DTOs.Orders;
 using MP_Backend.Services.Orders;
+using MP_Backend.Services.UserServices;
 using System.Runtime.CompilerServices;
 
 namespace MP_Backend.Controllers
@@ -13,10 +14,12 @@ namespace MP_Backend.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IUserContextService _userContextService;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IUserContextService userContextService)
         {
             _orderService = orderService;
+            _userContextService = userContextService;
         }
 
         [HttpPost("create")]
@@ -72,6 +75,16 @@ namespace MP_Backend.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        [HttpGet("download-excel")]
+        public async Task<IActionResult> DownloadOrderHistory(CancellationToken ct)
+        {
+            var currentUserId = await _userContextService.GetCurrentUserProfileIdAsync(ct);
+            var fileBytes = await _orderService.GenerateOrderHistoryExcelAsync(currentUserId, ct);
+
+            var fileName = $"order-history-mp-fishing-supply-ab-{DateTime.UtcNow:yyyyMMdd}.xlsx";
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
     }
 }

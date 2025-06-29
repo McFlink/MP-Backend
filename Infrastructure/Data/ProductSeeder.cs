@@ -17,14 +17,14 @@ namespace MP_Backend.Infrastructure.Data
             var product = new Product
             {
                 Name = "Gobble Sticky",
-                Description = "Effektivt doftmedel för sportfiske",
-                Category = "Sticky",
+                Description = "Effektivt doftmedel för all sorts fiske.",
+                Category = "Doftmedel",
                 Variants = new List<ProductVariant>
                 {
-                    new() { Scent = "Kräfta" },
-                    new() { Scent = "Räka" },
-                    new() { Scent = "Mussla" },
-                    new() { Scent = "Fisk" }
+                    new() { Name = "Kräfta" },
+                    new() { Name = "Räka" },
+                    new() { Name = "Mussla" },
+                    new() { Name = "Fisk" }
                 }
             };
 

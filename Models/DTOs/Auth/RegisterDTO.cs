@@ -10,10 +10,15 @@ namespace MP_Backend.Models.DTOs.Auth
         [Required]
         [MinLength(6)]
         public string Password { get; set; } = default!;
+
+        //Contact person
         [Required]
         public string FirstName { get; set; } = default!;
         [Required]
         public string LastName { get; set; } = default!;
+
+        [Required]
+        public string CompanyName { get; set; } = default!;
         [Required]
         [Phone]
         public string PhoneNumber { get; set; } = default!;

@@ -10,11 +10,12 @@ namespace MP_Backend.Mappers
             return new OrderDetailedDTO
             {
                 Id = order.Id,
+                OrderNumber = order.OrderNumber,
                 CreatedAt = order.CreatedAt,
                 Items = order.Items.Select(item => new OrderItemDTO
                 {
                     ProductName = item.ProductVariant.Product.Name ?? "Okänd produkt",
-                    Scent = item.ProductVariant.Scent ?? "Okänd färg",
+                    Name = item.ProductVariant.Name ?? "Okänt namn",
                     Color = item.ProductVariant.Color ?? "N/A",
                     Size = item.ProductVariant.Size ?? "N/A",
                     Quantity = item.Quantity
@@ -32,6 +33,7 @@ namespace MP_Backend.Mappers
             return new OrderSummaryDTO
             {
                 Id = order.Id,
+                OrderNumber = order.OrderNumber,
                 CreatedAt = order.CreatedAt
             };
         }
@@ -41,18 +43,23 @@ namespace MP_Backend.Mappers
             return orders.Select(ToSummaryDTO).ToList();
         }
 
-        public static Order MapToOrder(CreateOrderDTO dto, Guid userId)
+        public static Order MapToOrder(CreateOrderDTO dto, Guid userId, List<ProductVariant> variants)
         {
             return new Order
             {
                 Id = Guid.NewGuid(),
                 UserProfileId = userId,
                 CreatedAt = DateTime.UtcNow,
-                Items = dto.Items.Select(item => new OrderItem
+                Items = dto.Items.Select(item =>
                 {
-                    Id = Guid.NewGuid(),
-                    ProductVariantId = item.ProductVariantId,
-                    Quantity = item.Quantity
+                    var variant = variants.First(v => v.Id == item.ProductVariantId);
+                    return new OrderItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductVariantId = item.ProductVariantId,
+                        Quantity = item.Quantity,
+                        UnitPrice = variant.Price ?? 0
+                    };
                 }).ToList()
             };
         }

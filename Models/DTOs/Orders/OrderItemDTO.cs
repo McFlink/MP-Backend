@@ -3,7 +3,7 @@
     public class OrderItemDTO
     {
         public string ProductName { get; set; } = null!;
-        public string? Scent { get; set; }
+        public string? Name { get; set; }
         public string? Color { get; set; }
         public string? Size { get; set; }
         public string? Weight { get; set; }

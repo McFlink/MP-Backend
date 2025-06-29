@@ -59,6 +59,7 @@ namespace MP_Backend.Services.Auth
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 PhoneNumber = dto.PhoneNumber,
+                CompanyName = dto.CompanyName,
                 Address = dto.Address,
                 BillingAddress = dto.IsRetailer ? dto.BillingAddress : null,
                 CreatedAt = DateTime.UtcNow,
