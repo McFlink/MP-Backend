@@ -46,19 +46,24 @@ namespace MP_Backend.Data.Repositories.Orders
         {
             return await _context.Orders
                 .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
-                .AsNoTracking() 
+                .AsNoTracking()
                 .ToListAsync(ct);
         }
 
         public async Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
+                .AsNoTracking()
                 .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.ProductVariant)
                         .ThenInclude(pv => pv.Product)
-                        .AsNoTracking()
                 .ToListAsync(ct);
+        }
+
+        public async Task<int> GetLatestOrderNumberAsync(CancellationToken ct)
+        {
+            return await _context.Orders.MaxAsync(o => (int?)o.OrderNumber, ct) ?? 1000; // Check highest orderNo, allow null. If null, start at 1000
         }
     }
 }

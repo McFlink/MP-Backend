@@ -11,5 +11,6 @@
         public ProductVariant ProductVariant { get; set; } = null!;
 
         public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace MP_Backend.Services.Orders
         Task<List<OrderSummaryDTO>> GetPreviousOrdersAsync(CancellationToken ct);
         Task<List<OrderDetailedDTO>> GetPreviousOrdersWithDetailsAsync(CancellationToken ct);
         Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct);
+        Task<byte[]> GenerateOrderHistoryExcelAsync(Guid userProfileId, CancellationToken ct);
     }
 }

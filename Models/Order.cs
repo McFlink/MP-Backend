@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; }
 
+        public int OrderNumber { get; set; }
         public Guid UserProfileId { get; set; }
         public UserProfile UserProfile { get; set; } = null!;
 

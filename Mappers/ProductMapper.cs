@@ -16,7 +16,7 @@ namespace MP_Backend.Mappers
                 Variants = product.Variants.Select(v => new ProductVariantDTO
                 {
                     Id = v.Id,
-                    Scent = v.Scent,
+                    Name = v.Name,
                     Color = v.Color,
                     Size = v.Size,
                     Price = v.Price,

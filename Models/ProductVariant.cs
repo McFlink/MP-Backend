@@ -7,7 +7,7 @@
         public Guid ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
-        public string? Scent { get; set; }
+        public string? Name { get; set; }
         public string? Color { get; set; }
         public string? Size { get; set; }
 
