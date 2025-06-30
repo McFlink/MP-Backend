@@ -4,6 +4,7 @@ using MP_Backend.Data.Repositories.ProductVariants;
 using MP_Backend.Data.Repositories.Users;
 using MP_Backend.Mappers;
 using MP_Backend.Models.DTOs.Orders;
+using MP_Backend.Services.Email;
 using MP_Backend.Services.UserServices;
 
 namespace MP_Backend.Services.Orders
@@ -13,13 +14,15 @@ namespace MP_Backend.Services.Orders
         private readonly IOrderRepository _orderRepository;
         private readonly IUserContextService _userContextService;
         private readonly IProductVariantRepository _productVariantRepository;
+        private readonly IAppEmailSender _emailSender;
         private readonly ILogger<OrderService> _logger;
 
-        public OrderService(IOrderRepository orderRepository, IUserContextService userContextService, IUserProfileRepository userprofileRepository, ILogger<OrderService> logger, IProductVariantRepository productVariantRepository)
+        public OrderService(IOrderRepository orderRepository, IUserContextService userContextService, IUserProfileRepository userprofileRepository, ILogger<OrderService> logger, IProductVariantRepository productVariantRepository, IAppEmailSender emailSender)
         {
             _orderRepository = orderRepository;
             _userContextService = userContextService;
             _productVariantRepository = productVariantRepository;
+            _emailSender = emailSender;
             _logger = logger;
         }
 
@@ -28,6 +31,7 @@ namespace MP_Backend.Services.Orders
             try
             {
                 var currentUser = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+
                 _logger.LogInformation($"Creating new order for user with id {currentUser.IdentityUser.Id}");
 
                 var variantIds = dto.Items.Select(i => i.ProductVariantId).ToList();
@@ -42,6 +46,16 @@ namespace MP_Backend.Services.Orders
                 await _orderRepository.CreateOrderAsync(order, ct);
                 _logger.LogInformation($"Order created with id: {order.Id} and order number: {order.OrderNumber}");
 
+                try
+                {
+                    await _emailSender.SendOrderConfimationEmail(order, currentUser.IdentityUser.Email, "Order Confirmation", "Thank you for your order!");
+                    order.OrderConfirmationEmailSent = true;
+                    await _orderRepository.UpdateAsync(order, ct);
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogError(emailEx, $"Misslyckades att skicka orderbekräftelsemail för order {order.Id}");
+                }
                 return order.Id;
             }
             catch (Exception ex)

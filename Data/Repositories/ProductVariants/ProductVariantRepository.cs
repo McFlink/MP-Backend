@@ -14,6 +14,7 @@ namespace MP_Backend.Data.Repositories.ProductVariants
         public async Task<List<ProductVariant>> GetByIdAsync(List<Guid> ids, CancellationToken ct)
         {
             return await _context.ProductVariants
+                .Include(pv => pv.Product)
                 .Where(v => ids.Contains(v.Id))
                 .ToListAsync(ct);
         }
