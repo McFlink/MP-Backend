@@ -65,5 +65,11 @@ namespace MP_Backend.Data.Repositories.Orders
         {
             return await _context.Orders.MaxAsync(o => (int?)o.OrderNumber, ct) ?? 1000; // Check highest orderNo, allow null. If null, start at 1000
         }
+
+        public async Task UpdateAsync(Order order, CancellationToken ct)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync(ct);
+        }
     }
 }

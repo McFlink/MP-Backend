@@ -12,5 +12,6 @@ namespace MP_Backend.Data.Repositories.Orders
         Task<List<Order>> GetPreviousOrdersWithDetailsAsync(Guid userId, CancellationToken ct);
         Task<Order> CreateOrderAsync(Order order, CancellationToken ct);
         Task<int> GetLatestOrderNumberAsync(CancellationToken ct);
+        Task UpdateAsync(Order order, CancellationToken ct);
     }
 }
