@@ -1,4 +1,5 @@
-﻿using MP_Backend.Models;
+﻿using MP_Backend.Helpers;
+using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Orders;
 
 namespace MP_Backend.Mappers
@@ -7,18 +8,32 @@ namespace MP_Backend.Mappers
     {
         public static OrderDetailedDTO ToDetailedDTO(Order order)
         {
+            const decimal shippingFee = PriceConstants.ShippingFee;
+            const decimal vatRate = PriceConstants.VatRate;
+
+            var itemNetTotal = order.Items.Sum(i => i.Quantity * i.UnitPrice);
+            var netTotalWithShipping = itemNetTotal + shippingFee;
+            var vatAmount = netTotalWithShipping * vatRate;
+            var totalAmount = netTotalWithShipping + vatAmount;
+
             return new OrderDetailedDTO
             {
                 Id = order.Id,
                 OrderNumber = order.OrderNumber,
                 CreatedAt = order.CreatedAt,
+                TotalNetAmount = netTotalWithShipping,
+                VatAmount = vatAmount,
+                TotalAmount = totalAmount,
+                ShippingFee = shippingFee,
                 Items = order.Items.Select(item => new OrderItemDTO
                 {
                     ProductName = item.ProductVariant.Product.Name ?? "Okänd produkt",
                     Name = item.ProductVariant.Name ?? "Okänt namn",
                     Color = item.ProductVariant.Color ?? "N/A",
                     Size = item.ProductVariant.Size ?? "N/A",
-                    Quantity = item.Quantity
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    LineTotal = item.UnitPrice * item.Quantity
                 }).ToList()
             };
         }

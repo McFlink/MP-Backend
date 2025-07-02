@@ -1,4 +1,5 @@
-﻿using MP_Backend.Models;
+﻿using MP_Backend.Helpers;
+using MP_Backend.Models;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -58,12 +59,12 @@ namespace MP_Backend.Services.Email
             var orgNr = profile.OrganizationNumber ?? "Ej angivet org.nr";
 
             // Beräkningar (alla priser exklusive moms först)
-            decimal shippingFeeExclVat = 99m;
+            decimal shippingFeeExclVat = PriceConstants.ShippingFee;
             decimal itemTotalExclVat = order.Items.Sum(i => i.UnitPrice * i.Quantity);
             decimal totalExclVat = itemTotalExclVat + shippingFeeExclVat;
 
             // Moms beräknas på nettosumman (produkter + frakt)
-            decimal vatRate = 0.25m; // 25%
+            decimal vatRate = PriceConstants.VatRate; // 25%
             decimal vat = totalExclVat * vatRate;
             decimal totalInclVat = totalExclVat + vat;
 

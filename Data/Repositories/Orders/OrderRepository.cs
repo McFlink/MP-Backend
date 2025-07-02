@@ -23,30 +23,38 @@ namespace MP_Backend.Data.Repositories.Orders
         public async Task<Order?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
         {
             return await _context.Orders
+                .AsNoTracking()
                 .Where(o => o.Id == orderId)
                 .Include(o => o.Items)
                     .ThenInclude(oi => oi.ProductVariant)
                         .ThenInclude(pv => pv.Product)
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(ct);
+                 .FirstOrDefaultAsync(ct);
         }
+        public async Task<Order?> GetOrderSummaryByIdAsync(Guid orderId, CancellationToken ct)
+        {
+            return await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.Id == orderId)
+                .FirstOrDefaultAsync(ct);
+        }
+
 
         public async Task<List<Order>> GetByUserIdAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userProfileId)
-                .Include(o => o.Items)
-                    .ThenInclude(oi => oi.ProductVariant)
-                        .ThenInclude(pv => pv.Product)
-                        .AsNoTracking()
-                        .ToListAsync(ct);
+                .AsNoTracking()
+                    .Where(o => o.UserProfileId == userProfileId)
+                    .Include(o => o.Items)
+                        .ThenInclude(oi => oi.ProductVariant)
+                            .ThenInclude(pv => pv.Product)
+                    .ToListAsync(ct);
         }
 
         public async Task<List<Order>> GetPreviousOrdersSummaryAsync(Guid userProfileId, CancellationToken ct)
         {
             return await _context.Orders
-                .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
                 .AsNoTracking()
+                .Where(o => o.UserProfileId == userProfileId && o.OrderConfirmationEmailSent)
                 .ToListAsync(ct);
         }
 
@@ -71,5 +79,6 @@ namespace MP_Backend.Data.Repositories.Orders
             _context.Orders.Update(order);
             await _context.SaveChangesAsync(ct);
         }
+
     }
 }
