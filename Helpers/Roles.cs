@@ -1,4 +1,4 @@
-﻿namespace MP_Backend.Infrastructure.Identity
+﻿namespace MP_Backend.Helpers
 {
     public static class Roles
     {

@@ -2,7 +2,9 @@
 using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Data.Repositories.ProductVariants;
 using MP_Backend.Data.Repositories.Users;
+using MP_Backend.Helpers;
 using MP_Backend.Mappers;
+using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Orders;
 using MP_Backend.Services.Email;
 using MP_Backend.Services.UserServices;
@@ -28,34 +30,29 @@ namespace MP_Backend.Services.Orders
 
         public async Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct)
         {
+            if (dto.Items == null || !dto.Items.Any())
+                throw new ArgumentException("Ordern måste innehålla minst en artikel");
+
             try
             {
                 var currentUser = await _userContextService.GetCurrentUserWithProfileAsync(ct);
 
                 _logger.LogInformation($"Creating new order for user with id {currentUser.IdentityUser.Id}");
 
+                // Fetch variantid:s from dto to set current unit price in mapper when creating new OrderItem
                 var variantIds = dto.Items.Select(i => i.ProductVariantId).ToList();
                 var variants = await _productVariantRepository.GetByIdAsync(variantIds, ct);
 
                 var order = OrderMapper.MapToOrder(dto, currentUser.UserProfile.Id, variants);
 
                 // Generate unique order number
-                var latestOrderNumber = await _orderRepository.GetLatestOrderNumberAsync(ct);
-                order.OrderNumber = latestOrderNumber + 1;
+                order.OrderNumber = await GenerateOrderNumberAsync(ct);
 
                 await _orderRepository.CreateOrderAsync(order, ct);
                 _logger.LogInformation($"Order created with id: {order.Id} and order number: {order.OrderNumber}");
 
-                try
-                {
-                    await _emailSender.SendOrderConfimationEmail(order, currentUser.IdentityUser.Email, "Order Confirmation", "Thank you for your order!");
-                    order.OrderConfirmationEmailSent = true;
-                    await _orderRepository.UpdateAsync(order, ct);
-                }
-                catch (Exception emailEx)
-                {
-                    _logger.LogError(emailEx, $"Misslyckades att skicka orderbekräftelsemail för order {order.Id}");
-                }
+                await SendOrderConfirmationEmailAsync(order, currentUser.IdentityUser.Email, ct);
+
                 return order.Id;
             }
             catch (Exception ex)
@@ -65,11 +62,12 @@ namespace MP_Backend.Services.Orders
             }
         }
 
+        // Summary for frontend to display only list of IDs and/or order number
         public async Task<OrderSummaryDTO?> GetByOrderIdAsync(Guid orderId, CancellationToken ct)
         {
             try
             {
-                var order = await _orderRepository.GetByOrderIdAsync(orderId, ct);
+                var order = await _orderRepository.GetOrderSummaryByIdAsync(orderId, ct);
                 if (order is null)
                     throw new KeyNotFoundException($"Order with ID {orderId} not found.");
 
@@ -161,7 +159,7 @@ namespace MP_Backend.Services.Orders
 
                 var totalQuantity = order.Items.Sum(i => i.Quantity);
                 var totalAmount = order.Items.Sum(i => i.Quantity * i.ProductVariant.Price);
-                var totalAmountInclVat = totalAmount * 1.25m;
+                var totalAmountInclVat = totalAmount * PriceConstants.VatMultiplier;
 
                 worksheet.Cell(row, 4).Value = totalQuantity;
                 worksheet.Cell(row, 5).Value = totalAmount;
@@ -185,6 +183,26 @@ namespace MP_Backend.Services.Orders
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             return stream.ToArray();
+        }
+
+        private async Task<int> GenerateOrderNumberAsync(CancellationToken ct)
+        {
+            var latestOrderNumber = await _orderRepository.GetLatestOrderNumberAsync(ct);
+            return latestOrderNumber + 1;
+        }
+
+        private async Task SendOrderConfirmationEmailAsync(Order order, string toEmail, CancellationToken ct)
+        {
+            try
+            {
+                await _emailSender.SendOrderConfimationEmail(order, toEmail, "Order Confirmation", "Thank you for your order!");
+                order.OrderConfirmationEmailSent = true;
+                await _orderRepository.UpdateAsync(order, ct);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogError(emailEx, $"Misslyckades att skicka orderbekräftelsemail för order {order.Id}");
+            }
         }
     }
 }

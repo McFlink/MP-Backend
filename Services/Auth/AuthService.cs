@@ -6,13 +6,14 @@ using MP_Backend.Services.Email;
 using MP_Backend.Models.DTOs.Auth;
 using MP_Backend.Data;
 using MP_Backend.Models;
+using MP_Backend.Mappers;
 
 namespace MP_Backend.Services.Auth
 {
     public interface IAuthService
     {
-        Task<bool> RegisterAsync(RegisterDTO dto);
-        Task<(bool Success, string? Error)> LoginAsync(LoginDTO dto);
+        Task RegisterAsync(RegisterDTO dto);
+        Task LoginAsync(LoginDTO dto);
         Task LogoutAsync(HttpResponse response);
         string? GetCurrentUserId();
     }
@@ -25,6 +26,7 @@ namespace MP_Backend.Services.Auth
         private readonly IJwtService _jwtService;
         private readonly IAppEmailSender _emailSender;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             UserManager<IdentityUser> userManager,
@@ -32,7 +34,8 @@ namespace MP_Backend.Services.Auth
             IHttpContextAccessor httpContextAccessor,
             IJwtService jwtService,
             IAppEmailSender emailSender,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ILogger<AuthService> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -40,55 +43,53 @@ namespace MP_Backend.Services.Auth
             _jwtService = jwtService;
             _emailSender = emailSender;
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<bool> RegisterAsync(RegisterDTO dto)
+        public async Task RegisterAsync(RegisterDTO dto)
         {
             var user = new IdentityUser { UserName = dto.Email, Email = dto.Email };
             var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded) return false;
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Registrering av användare misslyckades: {errors}");
+            }
 
             var role = dto.IsRetailer ? "Retailer" : "Customer";
             var roleResult = await _userManager.AddToRoleAsync(user, role);
-            if (!roleResult.Succeeded) return false;
-
-            var userProfile = new UserProfile
+            if (!roleResult.Succeeded)
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                PhoneNumber = dto.PhoneNumber,
-                CompanyName = dto.CompanyName,
-                Address = dto.Address,
-                BillingAddress = dto.IsRetailer ? dto.BillingAddress : null,
-                CreatedAt = DateTime.UtcNow,
-                OrganizationNumber = dto.IsRetailer ? dto.OrganizationNumber : null,
-                BankIdVerified = false,
-                BankIdVerifiedAt = null
-            };
+                // Delete user if role assignment fails
+                await _userManager.DeleteAsync(user);
+
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                _logger.LogWarning("Failed to assign role {Role} to user {Email}: {Errors}", role, dto.Email, errors);
+                throw new InvalidOperationException($"Roll-tilldelning misslyckades: {errors}. Ny användare har ej skapats.");
+            }
+
+            var userProfile = UserMapper.ToUserProfile(user, dto);
 
             _context.UserProfiles.Add(userProfile);
             await _context.SaveChangesAsync();
 
+            // Send verification email to newly registered user
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var confirmationLink = $"https://localhost:7067/api/auth/confirmemail?userId={user.Id}&token={Uri.EscapeDataString(token)}";
             await _emailSender.SendEmailAsync(user.Email, "Verifiera ditt konto", confirmationLink);
-
-            return true;
         }
 
-        public async Task<(bool Success, string? Error)> LoginAsync(LoginDTO dto)
+        public async Task LoginAsync(LoginDTO dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
-                return (false, "E-posten hittas inte");
+                throw new UnauthorizedAccessException("Felaktiga inloggningsuppgifter");
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
-                return (false, "Du måste bekräfta din e-post först.");
+                throw new InvalidOperationException("Du måste bekräfta din e-post först.");
 
             if (!await _userManager.CheckPasswordAsync(user, dto.Password))
-                return (false, "Fel lösenord");
+                throw new UnauthorizedAccessException("Felaktiga inloggningsuppgifter");
 
             var token = await _jwtService.GenerateToken(user);
             _httpContextAccessor.HttpContext?.Response.Cookies.Append("jwt", token, new CookieOptions
@@ -98,8 +99,6 @@ namespace MP_Backend.Services.Auth
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddDays(1)
             });
-
-            return (true, null);
         }
 
         public Task LogoutAsync(HttpResponse response)
