@@ -26,44 +26,8 @@ namespace MP_Backend.Data.Repositories.Users
             return userProfile;
         }
 
-        public async Task<IdentityUser> UpdateUserEmail(string identityUserId, string newEmail, CancellationToken ct)
+        public async Task<UserProfile> UpdateUserProfile(UserProfile profile, CancellationToken ct)
         {
-            var user = await _context.Users.FindAsync(identityUserId, ct);
-            if (user == null)
-                throw new KeyNotFoundException($"User not found.");
-
-            user.Email = newEmail;
-            user.UserName = newEmail;
-            user.NormalizedEmail = newEmail.ToUpperInvariant();
-            user.NormalizedUserName = newEmail.ToUpperInvariant();
-
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync(ct);
-
-            return user;
-        }
-
-        public async Task<UserProfile> UpdateUserProfile(Guid userProfileId, UpdateProfileDTO dto, CancellationToken ct)
-        {
-            var profile = _context.UserProfiles.FirstOrDefault(up => up.Id == userProfileId);
-            if (profile == null)
-                throw new KeyNotFoundException($"User not found");
-
-            if(!string.IsNullOrEmpty(dto.FirstName))
-                profile.FirstName = dto.FirstName;
-
-            if (!string.IsNullOrEmpty(dto.LastName))
-                profile.LastName = dto.LastName;
-
-            if (!string.IsNullOrEmpty(dto.PhoneNumber))
-                profile.PhoneNumber = dto.PhoneNumber;
-
-            if (!string.IsNullOrEmpty(dto.Address))
-                profile.Address = dto.Address;
-
-            if (!string.IsNullOrEmpty(dto.BillingAddress))
-                profile.BillingAddress = dto.BillingAddress;
-
             _context.UserProfiles.Update(profile);
             await _context.SaveChangesAsync(ct);
 

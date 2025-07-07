@@ -22,9 +22,9 @@ namespace MP_Backend.Data.Repositories.Products
         public async Task<List<Product>> GetAllWithVariantsAsync(CancellationToken ct)
         {
             return await _context.Products
-                .Include(p => p.Variants)
                 .AsNoTracking()
-                .ToListAsync(ct);
+                    .Include(p => p.Variants)
+                 .ToListAsync(ct);
         }
     }
 }

@@ -6,7 +6,7 @@
         public string LastName { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
-        public string BillingAddress { get; set; } = null!;
+        public string? BillingAddress { get; set; }
         public string? OrganizationNumber { get; set; }
         public string? CompanyName { get; set; }
     }

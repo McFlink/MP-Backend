@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Identity;
 using MP_Backend.Data.Repositories.Users;
 using MP_Backend.Mappers;
 using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Users;
+using System.ComponentModel.DataAnnotations;
 
 namespace MP_Backend.Services.UserServices
 {
@@ -10,12 +12,14 @@ namespace MP_Backend.Services.UserServices
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserContextService _userContextService;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IUserContextService userContextService, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, IUserContextService userContextService, ILogger<UserService> logger, UserManager<IdentityUser> userManager)
         {
             _userRepository = userRepository;
             _userContextService = userContextService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -39,7 +43,7 @@ namespace MP_Backend.Services.UserServices
             }
         }
 
-        public async Task<IdentityUser> UpdateEmailAsync(string newEmail, CancellationToken ct)
+        public async Task UpdateEmailAsync(string newEmail, CancellationToken ct)
         {
             try
             {
@@ -47,7 +51,23 @@ namespace MP_Backend.Services.UserServices
                 if (currentUser == null)
                     throw new InvalidOperationException("Current user is not authenticated.");
 
-                return await _userRepository.UpdateUserEmail(currentUser.IdentityUser.Id, newEmail, ct);
+                ValidateEmailFormat(newEmail);
+
+                var existingUser = await _userManager.FindByEmailAsync(newEmail);
+                if (existingUser == null && existingUser.Id != currentUser.IdentityUser.Id)
+                    throw new InvalidOperationException("E-posten används redan");
+
+                var user = currentUser.IdentityUser;
+
+                user.Email = newEmail;
+                user.UserName = newEmail;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException($"Kunde inte uppdatera e-post: {errors}");
+                }
             }
             catch (Exception ex)
             {
@@ -64,7 +84,18 @@ namespace MP_Backend.Services.UserServices
                 if (currentUser == null)
                     throw new InvalidOperationException("Current user is not authenticated.");
 
-                var updatedProfile = await _userRepository.UpdateUserProfile(currentUser.UserProfile.Id, dto, ct);
+                if (dto.IsRetailer && string.IsNullOrWhiteSpace(dto.BillingAddress))
+                    throw new ArgumentException("Faktureringsadress krävs för återförsäljare");
+
+                var profile = currentUser.UserProfile;
+
+                profile.FirstName = dto.FirstName ?? currentUser.UserProfile.FirstName;
+                profile.LastName = dto.LastName ?? currentUser.UserProfile.LastName;
+                profile.PhoneNumber = dto.PhoneNumber ?? currentUser.UserProfile.PhoneNumber;
+                profile.Address = dto.Address ?? currentUser.UserProfile.Address;
+                currentUser.UserProfile.BillingAddress = dto.BillingAddress ?? profile.BillingAddress;
+
+                var updatedProfile = await _userRepository.UpdateUserProfile(profile, ct);
 
                 return UserMapper.ToUserProfileDTO(updatedProfile);
             }
@@ -74,5 +105,12 @@ namespace MP_Backend.Services.UserServices
                 throw;
             }
         }
+
+        private void ValidateEmailFormat(string email)
+        {
+            if (!new EmailAddressAttribute().IsValid(email))
+                throw new ArgumentException("Ogiltigt e-postformat.");
+        }
+
     }
 }
