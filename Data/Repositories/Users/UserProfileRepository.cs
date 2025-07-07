@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MP_Backend.Data;
 using MP_Backend.Models;
 
 namespace MP_Backend.Data.Repositories.Users

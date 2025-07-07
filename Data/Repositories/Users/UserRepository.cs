@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MP_Backend.Models;
-using MP_Backend.Models.DTOs.Users;
 
 namespace MP_Backend.Data.Repositories.Users
 {

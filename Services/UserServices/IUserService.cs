@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using MP_Backend.Models;
-using MP_Backend.Models.DTOs.Users;
+﻿using MP_Backend.Models.DTOs.Users;
 
 namespace MP_Backend.Services.UserServices
 {

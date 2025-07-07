@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using MP_Backend.Controllers;
 using MP_Backend.Services.Email;
 using MP_Backend.Models.DTOs.Auth;
 using MP_Backend.Data;
