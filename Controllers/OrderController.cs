@@ -30,21 +30,21 @@ namespace MP_Backend.Controllers
 
 
         [HttpGet("{orderId}")]
-        public async Task<IActionResult> GetOrderById(Guid orderId, CancellationToken ct)
+        public async Task<ActionResult<OrderSummaryDTO>> GetOrderById(Guid orderId, CancellationToken ct)
         {
             var order = await _orderService.GetByOrderIdAsync(orderId, ct);
             return Ok(order);
         }
 
         [HttpGet("summary")]
-        public async Task<IActionResult> GetPreviousOrdersSummary(CancellationToken ct)
+        public async Task<ActionResult<OrderSummaryDTO>> GetPreviousOrdersSummary(CancellationToken ct)
         {
             var orders = await _orderService.GetPreviousOrdersAsync(ct);
             return Ok(orders);
         }
 
         [HttpGet("detailed")]
-        public async Task<IActionResult> GetPreviousOrdersWithDetails(CancellationToken ct)
+        public async Task<ActionResult<OrderDetailedDTO>> GetPreviousOrdersWithDetails(CancellationToken ct)
         {
             var orders = await _orderService.GetPreviousOrdersWithDetailsAsync(ct);
             return Ok(orders);

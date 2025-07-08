@@ -35,8 +35,8 @@ namespace MP_Backend.Controllers
         [HttpPut("profile/email")]
         public async Task<IActionResult> UpdateUserEmail([FromQuery] string newEmail, CancellationToken ct)
         {
-            var updatedEmail = await _userService.UpdateEmailAsync(newEmail, ct);
-            return Ok(updatedEmail);
+            await _userService.UpdateEmailAsync(newEmail, ct);
+            return Ok(new { message = "E-posten uppdaterad"});
         }
     }
 }

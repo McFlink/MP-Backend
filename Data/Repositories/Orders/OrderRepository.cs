@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MP_Backend.Models;
-using MP_Backend.Models.DTOs.Orders;
 
 namespace MP_Backend.Data.Repositories.Orders
 {

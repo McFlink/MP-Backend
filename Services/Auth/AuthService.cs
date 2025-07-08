@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using MP_Backend.Controllers;
 using MP_Backend.Services.Email;
 using MP_Backend.Models.DTOs.Auth;
 using MP_Backend.Data;
@@ -64,7 +62,7 @@ namespace MP_Backend.Services.Auth
                 await _userManager.DeleteAsync(user);
 
                 var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                _logger.LogWarning("Failed to assign role {Role} to user {Email}: {Errors}", role, dto.Email, errors);
+                _logger.LogWarning($"Failed to assign role {role}: {errors}");
                 throw new InvalidOperationException($"Roll-tilldelning misslyckades: {errors}. Ny användare har ej skapats.");
             }
 
@@ -106,7 +104,6 @@ namespace MP_Backend.Services.Auth
             response.Cookies.Delete("jwt");
             return Task.CompletedTask;
         }
-
 
         public string? GetCurrentUserId()
         {

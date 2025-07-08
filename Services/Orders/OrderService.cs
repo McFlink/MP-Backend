@@ -36,6 +36,8 @@ namespace MP_Backend.Services.Orders
             try
             {
                 var currentUser = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+                if (string.IsNullOrWhiteSpace(currentUser.IdentityUser.Email))
+                    throw new InvalidOperationException("Användaren saknar epost-adress");
 
                 _logger.LogInformation($"Creating new order for user with id {currentUser.IdentityUser.Id}");
 
@@ -117,7 +119,34 @@ namespace MP_Backend.Services.Orders
         {
             var orders = await _orderRepository.GetByUserIdAsync(userProfileId, ct);
             var userProfile = await _userContextService.GetCurrentUserProfileAsync(ct);
+            if (userProfile == null)
+                throw new InvalidOperationException("Kunde inte hämta användaren");
 
+            return GenerateOrderHistoryExcel(orders, userProfile, ct);
+        }
+
+        private async Task<int> GenerateOrderNumberAsync(CancellationToken ct)
+        {
+            var latestOrderNumber = await _orderRepository.GetLatestOrderNumberAsync(ct);
+            return latestOrderNumber + 1;
+        }
+
+        private async Task SendOrderConfirmationEmailAsync(Order order, string toEmail, CancellationToken ct)
+        {
+            try
+            {
+                await _emailSender.SendOrderConfimationEmail(order, toEmail, "Order Confirmation", "Thank you for your order!");
+                order.OrderConfirmationEmailSent = true;
+                await _orderRepository.UpdateAsync(order, ct);
+            }
+            catch (Exception emailEx)
+            {
+                _logger.LogError(emailEx, $"Misslyckades att skicka orderbekräftelsemail för order {order.Id}");
+            }
+        }
+
+        private static Byte[] GenerateOrderHistoryExcel(List<Order> orders, UserProfile userProfile, CancellationToken ct)
+        {
             using var workbook = new XLWorkbook();
             // Add new tab (kalkylblad)
             var worksheet = workbook.Worksheets.Add("Order History");
@@ -183,26 +212,6 @@ namespace MP_Backend.Services.Orders
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             return stream.ToArray();
-        }
-
-        private async Task<int> GenerateOrderNumberAsync(CancellationToken ct)
-        {
-            var latestOrderNumber = await _orderRepository.GetLatestOrderNumberAsync(ct);
-            return latestOrderNumber + 1;
-        }
-
-        private async Task SendOrderConfirmationEmailAsync(Order order, string toEmail, CancellationToken ct)
-        {
-            try
-            {
-                await _emailSender.SendOrderConfimationEmail(order, toEmail, "Order Confirmation", "Thank you for your order!");
-                order.OrderConfirmationEmailSent = true;
-                await _orderRepository.UpdateAsync(order, ct);
-            }
-            catch (Exception emailEx)
-            {
-                _logger.LogError(emailEx, $"Misslyckades att skicka orderbekräftelsemail för order {order.Id}");
-            }
         }
     }
 }

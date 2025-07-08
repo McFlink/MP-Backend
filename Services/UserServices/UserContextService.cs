@@ -65,6 +65,5 @@ namespace MP_Backend.Services.UserServices
                 UserProfile = userProfile
             };
         }
-
     }
 }

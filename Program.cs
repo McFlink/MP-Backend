@@ -35,7 +35,6 @@ namespace MP_Backend
                 .AddEnvironmentVariables();
 
             // Add services to the container.
-
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -162,7 +161,7 @@ namespace MP_Backend
                 await RoleSeeder.SeedAsync(services);
                 await ProductSeeder.SeedAsync(services);
             }
-            
+
             app.Run();
         }
     }
