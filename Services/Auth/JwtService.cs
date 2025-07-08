@@ -26,6 +26,7 @@ namespace MP_Backend.Services.Auth
         {
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Create list with claims that describes the user. Key Value Pair
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
@@ -33,6 +34,7 @@ namespace MP_Backend.Services.Auth
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
+            // Add a claim for each role user has
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));

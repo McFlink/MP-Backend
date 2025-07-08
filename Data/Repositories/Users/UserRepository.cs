@@ -18,6 +18,8 @@ namespace MP_Backend.Data.Repositories.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userProfileId, ct);
 
+
+            // Evaluate if this check is neccessary here, if there is a check in the service
             if (userProfile == null)
                 throw new KeyNotFoundException("User profile not found");
 
