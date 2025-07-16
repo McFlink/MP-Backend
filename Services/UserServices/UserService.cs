@@ -104,11 +104,24 @@ namespace MP_Backend.Services.UserServices
             }
         }
 
+        public async Task<string> GenerateCustomerNumberAsync(bool isRetailer, CancellationToken ct)
+        {
+            var prefix = isRetailer ? "R" : "C";
+            var latestNumber = await _userRepository.GetLatestCustomerNumberAsync(prefix, ct);
+
+            var numericPart = 1; // Fallback if no CustomerNumbers in table
+            if (!string.IsNullOrWhiteSpace(latestNumber) && int.TryParse(latestNumber.Substring(1), out var parsedNumber))
+            {
+                numericPart = parsedNumber + 1;
+            }
+
+            return $"{prefix}{numericPart:D4}";
+        }
+
         private void ValidateEmailFormat(string email)
         {
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new ArgumentException("Ogiltigt e-postformat.");
         }
-
     }
 }

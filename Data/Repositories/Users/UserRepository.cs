@@ -33,5 +33,13 @@ namespace MP_Backend.Data.Repositories.Users
 
             return profile;
         }
+
+        public async Task<string?> GetLatestCustomerNumberAsync(string prefix, CancellationToken ct)
+        {
+            return await _context.UserProfiles
+                .Where(u => u.CustomerNumber.StartsWith(prefix))
+                .Select(u => u.CustomerNumber)
+                .FirstOrDefaultAsync(ct) ?? string.Empty;
+        }
     }
 }

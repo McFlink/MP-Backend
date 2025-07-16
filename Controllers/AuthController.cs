@@ -20,9 +20,9 @@ namespace MP_Backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDTO dto)
+        public async Task<IActionResult> Register(RegisterDTO dto, CancellationToken ct)
         {
-            await _authService.RegisterAsync(dto);
+            await _authService.RegisterAsync(dto, ct);
             return Ok("Registrering lyckades");
         }
 
