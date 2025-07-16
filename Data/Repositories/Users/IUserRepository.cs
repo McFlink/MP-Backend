@@ -6,5 +6,6 @@ namespace MP_Backend.Data.Repositories.Users
     {
         Task<UserProfile> GetUserProfile(Guid userProfileId, CancellationToken ct);
         Task<UserProfile> UpdateUserProfile(UserProfile profile, CancellationToken ct);
+        Task<string?> GetLatestCustomerNumberAsync(string prefix, CancellationToken ct);
     }
 }

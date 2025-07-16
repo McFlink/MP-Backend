@@ -7,6 +7,7 @@ namespace MP_Backend.Models
         public Guid Id { get; set; }
         public string UserId { get; set; } = null!;
         public IdentityUser User { get; set; } = null!;
+        public string CustomerNumber { get; set; } = null!;
 
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;

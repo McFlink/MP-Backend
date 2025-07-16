@@ -23,7 +23,7 @@ namespace MP_Backend.Mappers
             };
         }
 
-        public static UserProfile ToUserProfile(IdentityUser user, RegisterDTO dto)
+        public static UserProfile ToUserProfile(IdentityUser user, RegisterDTO dto, string customerNumber)
         {
             return new UserProfile
             {
@@ -31,6 +31,7 @@ namespace MP_Backend.Mappers
                 UserId = user.Id,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
+                CustomerNumber = customerNumber,
                 PhoneNumber = dto.PhoneNumber,
                 CompanyName = dto.CompanyName,
                 Address = dto.Address,
