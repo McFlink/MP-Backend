@@ -3,6 +3,7 @@ using System;
 using MP_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MP_Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716112729_AddPropsForSoftDeletion")]
+    partial class AddPropsForSoftDeletion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,7 +80,7 @@ namespace MP_Backend.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("UserProfileId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -96,22 +99,13 @@ namespace MP_Backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CustomerEmailAtOrder")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CustomerNameAtOrder")
-                        .HasColumnType("text");
-
                     b.Property<bool>("OrderConfirmationEmailSent")
                         .HasColumnType("boolean");
 
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer");
 
-                    b.Property<string>("OrganizationNumberAtOrder")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("UserProfileId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -235,7 +229,7 @@ namespace MP_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool?>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
@@ -464,7 +458,8 @@ namespace MP_Backend.Migrations
                     b.HasOne("MP_Backend.Models.UserProfile", "UserProfile")
                         .WithMany()
                         .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("UserProfile");
                 });
@@ -474,7 +469,8 @@ namespace MP_Backend.Migrations
                     b.HasOne("MP_Backend.Models.UserProfile", "UserProfile")
                         .WithMany()
                         .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("UserProfile");
                 });

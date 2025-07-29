@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using MP_Backend.Data.Repositories.Users;
 using MP_Backend.Mappers;
+using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Users;
 using System.ComponentModel.DataAnnotations;
 
@@ -116,6 +117,26 @@ namespace MP_Backend.Services.UserServices
             }
 
             return $"{prefix}{numericPart:D4}";
+        }
+
+        public async Task SoftDeleteAccountAsync(CancellationToken ct)
+        {
+            try
+            {
+                var user = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+
+                user.UserProfile.IsDeleted = true;
+                user.UserProfile.DeletedAt = DateTime.UtcNow;
+
+                user.IdentityUser.LockoutEnd = DateTimeOffset.MaxValue;
+
+                await _userRepository.SoftDeleteUserAsync(user.IdentityUser, user.UserProfile, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while soft deleting user account");
+                throw;
+            }
         }
 
         private void ValidateEmailFormat(string email)

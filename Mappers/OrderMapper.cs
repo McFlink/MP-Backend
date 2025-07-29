@@ -1,6 +1,7 @@
 ﻿using MP_Backend.Helpers;
 using MP_Backend.Models;
 using MP_Backend.Models.DTOs.Orders;
+using MP_Backend.Services.UserServices;
 
 namespace MP_Backend.Mappers
 {
@@ -58,13 +59,16 @@ namespace MP_Backend.Mappers
             return orders.Select(ToSummaryDTO).ToList();
         }
 
-        public static Order MapToOrder(CreateOrderDTO dto, Guid userId, List<ProductVariant> variants)
+        public static Order MapToOrder(CreateOrderDTO dto, CurrentUserContext user, List<ProductVariant> variants)
         {
             return new Order
             {
                 Id = Guid.NewGuid(),
-                UserProfileId = userId,
+                UserProfileId = user.UserProfile.Id,
                 CreatedAt = DateTime.UtcNow,
+                CustomerNameAtOrder = $"{user.UserProfile.FirstName} {user.UserProfile.LastName}",
+                CustomerEmailAtOrder = user.IdentityUser.Email,
+                OrganizationNumberAtOrder = user.UserProfile.OrganizationNumber,
                 Items = dto.Items.Select(item =>
                 {
                     var variant = variants.First(v => v.Id == item.ProductVariantId);

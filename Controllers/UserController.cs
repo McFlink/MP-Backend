@@ -38,5 +38,12 @@ namespace MP_Backend.Controllers
             await _userService.UpdateEmailAsync(newEmail, ct);
             return Ok(new { message = "E-posten uppdaterad"});
         }
+
+        [HttpPut("profile/softdeleteaccount")]
+        public async Task<IActionResult> SoftDeleteUserAccount(CancellationToken ct)
+        {
+            await _userService.SoftDeleteAccountAsync(ct);
+            return Ok(new { message = "Kontot inaktiverat i 6 månader, innan det tas bort permanent." });
+        }
     }
 }
