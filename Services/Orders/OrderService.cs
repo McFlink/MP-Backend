@@ -45,7 +45,7 @@ namespace MP_Backend.Services.Orders
                 var variantIds = dto.Items.Select(i => i.ProductVariantId).ToList();
                 var variants = await _productVariantRepository.GetByIdAsync(variantIds, ct);
 
-                var order = OrderMapper.MapToOrder(dto, currentUser.UserProfile.Id, variants);
+                var order = OrderMapper.MapToOrder(dto, currentUser, variants);
 
                 // Generate unique order number
                 order.OrderNumber = await GenerateOrderNumberAsync(ct);

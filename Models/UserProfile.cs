@@ -22,5 +22,7 @@ namespace MP_Backend.Models
 
         public bool BankIdVerified { get; set; }
         public DateTime? BankIdVerifiedAt { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
     }
 }

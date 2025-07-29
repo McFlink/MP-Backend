@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MP_Backend.Models;
 
 namespace MP_Backend.Data.Repositories.Users
@@ -40,6 +41,13 @@ namespace MP_Backend.Data.Repositories.Users
                 .Where(u => u.CustomerNumber.StartsWith(prefix))
                 .Select(u => u.CustomerNumber)
                 .FirstOrDefaultAsync(ct) ?? string.Empty;
+        }
+
+        public async Task SoftDeleteUserAsync(IdentityUser user, UserProfile profile, CancellationToken ct)
+        {
+            _context.Users.Update(user);
+            _context.UserProfiles.Update(profile);
+            await _context.SaveChangesAsync(ct);
         }
     }
 }

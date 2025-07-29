@@ -54,7 +54,7 @@ namespace MP_Backend.Infrastructure.Middleware
                     Title = statusCode switch
                     {
                         400 => "Bad request – the request was invalid",
-                        401 => "Unauthorized – please log in",
+                        401 => "Unauthorized",
                         403 => "Forbidden – access denied",
                         404 => "Not found – resource missing",
                         405 => "Method not allowed",

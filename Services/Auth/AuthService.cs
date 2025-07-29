@@ -114,7 +114,6 @@ namespace MP_Backend.Services.Auth
                     if (existingUser != null)
                         await _userManager.DeleteAsync(user);
                 }
-
             }
         }
 
@@ -124,11 +123,26 @@ namespace MP_Backend.Services.Auth
             if (user == null)
                 throw new UnauthorizedAccessException("Felaktiga inloggningsuppgifter");
 
+            if (await _userManager.IsLockedOutAsync(user))
+                throw new UnauthorizedAccessException("Ditt konto är låst."); // NÄSTA STEG I BRANCH: Kolla så att radering av userprofile inte raderar dess orders.
+
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 throw new InvalidOperationException("Du måste bekräfta din e-post först.");
 
             if (!await _userManager.CheckPasswordAsync(user, dto.Password))
+            {
+                await _userManager.AccessFailedAsync(user);
+
+                if (await _userManager.IsLockedOutAsync(user))
+                {
+                    // Send mail to user here. "Your account has min locked due to too many failed login attemps".
+                    _logger.LogWarning($"Konto låst: {dto.Email}");
+                }
+
                 throw new UnauthorizedAccessException("Felaktiga inloggningsuppgifter");
+            }
+
+            await _userManager.ResetAccessFailedCountAsync(user);
 
             var token = await _jwtService.GenerateToken(user);
             _httpContextAccessor.HttpContext?.Response.Cookies.Append("jwt", token, new CookieOptions

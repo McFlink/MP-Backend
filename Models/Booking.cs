@@ -6,8 +6,12 @@ namespace MP_Backend.Models
     {
         public Guid Id { get; set; }
 
-        public Guid UserProfileId { get; set; }
-        public UserProfile UserProfile { get; set; } = null!;
+        public Guid? UserProfileId { get; set; }
+        public UserProfile? UserProfile { get; set; } // Nullable only to be able to use global query filter
+        public string? CustomerNameAtBooking { get; set; }
+        public string? NationalIdAtBooking { get; set; } // Need this?
+        public string? EmailAtBooking { get; set; }
+
 
         public DateTime BookingDate { get; set; }
         public DateTime StartDate { get; set; }

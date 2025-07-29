@@ -61,10 +61,12 @@ namespace MP_Backend
 
             builder.Services.AddScoped<IAppEmailSender, SendGridEmailSender>();
 
-            // Email verification
+            // Identity options
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
             });
 
 
