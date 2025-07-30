@@ -4,7 +4,8 @@ namespace MP_Backend.Services.Email
 {
     public interface IAppEmailSender
     {
-        Task SendEmailAsync(string toEmail, string subject, string message);
-        Task SendOrderConfimationEmail(Order order, string toEmail, string subject, string message);
+        Task SendEmailConfirmationLinkAsync(string toEmail, string subject, string message);
+        Task SendOrderConfimationEmailToUser(Order order, string toEmail, string subject, string message);
+        Task SendOrderConfirmationEmailToAdmin(Order order, string toEmail, string subject, string message);
     }
 }
