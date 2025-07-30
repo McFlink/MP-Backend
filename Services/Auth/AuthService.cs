@@ -99,7 +99,7 @@ namespace MP_Backend.Services.Auth
                     // Send verification email to newly registered user
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = $"https://localhost:7067/api/auth/confirmemail?userId={user.Id}&token={Uri.EscapeDataString(token)}";
-                    await _emailSender.SendEmailAsync(user.Email, "Verifiera ditt konto", confirmationLink);
+                    await _emailSender.SendEmailConfirmationLinkAsync(user.Email, "Verifiera ditt konto", confirmationLink);
                 }
                 catch (Exception mailEx)
                 {

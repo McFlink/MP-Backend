@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using EllipticCurve;
 using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Data.Repositories.ProductVariants;
 using MP_Backend.Data.Repositories.Users;
@@ -17,15 +18,17 @@ namespace MP_Backend.Services.Orders
         private readonly IUserContextService _userContextService;
         private readonly IProductVariantRepository _productVariantRepository;
         private readonly IAppEmailSender _emailSender;
+        private readonly IConfiguration _config;
         private readonly ILogger<OrderService> _logger;
 
-        public OrderService(IOrderRepository orderRepository, IUserContextService userContextService, IUserProfileRepository userprofileRepository, ILogger<OrderService> logger, IProductVariantRepository productVariantRepository, IAppEmailSender emailSender)
+        public OrderService(IOrderRepository orderRepository, IUserContextService userContextService, IUserProfileRepository userprofileRepository, ILogger<OrderService> logger, IProductVariantRepository productVariantRepository, IAppEmailSender emailSender, IConfiguration config)
         {
             _orderRepository = orderRepository;
             _userContextService = userContextService;
             _productVariantRepository = productVariantRepository;
             _emailSender = emailSender;
             _logger = logger;
+            _config = config;
         }
 
         public async Task<Guid> CreateOrderAsync(CreateOrderDTO dto, CancellationToken ct)
@@ -133,11 +136,20 @@ namespace MP_Backend.Services.Orders
 
         private async Task SendOrderConfirmationEmailAsync(Order order, string toEmail, CancellationToken ct)
         {
+            var adminEmail = _config["SendGrid:AdminEmail1"];
+
             try
             {
-                await _emailSender.SendOrderConfimationEmail(order, toEmail, "Order Confirmation", "Thank you for your order!");
+                await _emailSender.SendOrderConfimationEmailToUser(order, toEmail, "Order Confirmation", "Thank you for your order!");
                 order.OrderConfirmationEmailSent = true;
                 await _orderRepository.UpdateAsync(order, ct);
+
+                // Hämta company och passande data för parameter 3& 4 i SendOrderConfirmationEmailToAdmin
+                var user = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+                var company = user.UserProfile.CompanyName ?? "Företag ej tillgängligt.";
+                var orderNumber = order.OrderNumber.ToString();
+
+                await _emailSender.SendOrderConfirmationEmailToAdmin(order, adminEmail!, company, orderNumber);
             }
             catch (Exception emailEx)
             {
