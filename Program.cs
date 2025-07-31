@@ -61,6 +61,20 @@ namespace MP_Backend
 
             builder.Services.AddScoped<IAppEmailSender, SendGridEmailSender>();
 
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("_allowedOrigins", policy =>
+                {
+                    policy.WithOrigins(allowedOrigins!) // frontend dev url
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials(); // Needed if sending cookies (e.g JWT HttpOnly)
+                });
+            });
+
+
             // Identity options
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -134,6 +148,8 @@ namespace MP_Backend
             var app = builder.Build();
 
             app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseCors("_allowedOrigins");
 
             app.UseRouting();
 

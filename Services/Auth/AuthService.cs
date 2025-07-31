@@ -124,7 +124,7 @@ namespace MP_Backend.Services.Auth
                 throw new UnauthorizedAccessException("Felaktiga inloggningsuppgifter");
 
             if (await _userManager.IsLockedOutAsync(user))
-                throw new UnauthorizedAccessException("Ditt konto är låst."); // NÄSTA STEG I BRANCH: Kolla så att radering av userprofile inte raderar dess orders.
+                throw new UnauthorizedAccessException("Ditt konto är låst.");
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
                 throw new InvalidOperationException("Du måste bekräfta din e-post först.");
