@@ -29,8 +29,23 @@ namespace MP_Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO dto)
         {
-            await _authService.LoginAsync(dto);
-            return Ok("Inloggad");
+            try
+            {
+                await _authService.LoginAsync(dto);
+                return Ok("Inloggad");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Ett oväntat fel inträffade" });
+            }
         }
 
         [HttpPost("logout")]
@@ -50,13 +65,12 @@ namespace MP_Backend.Controllers
             return result.Succeeded ? Ok("E-post bekräftad!") : BadRequest("Bekräftelsen misslyckades.");
         }
 
-        // Temporary for debug/testing
-        [HttpGet("me")]
+        [HttpGet("user")]
         [Authorize]
-        public IActionResult Me()
+        public async Task<IActionResult> CurrentUser(CancellationToken ct)
         {
-            var userId = _authService.GetCurrentUserId();
-            return Ok(new { UserId = userId });
+            var dto = await _authService.CurrentUser(ct);
+            return Ok(dto);
         }
     }
 }

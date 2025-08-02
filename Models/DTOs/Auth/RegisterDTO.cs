@@ -17,8 +17,7 @@ namespace MP_Backend.Models.DTOs.Auth
         [Required]
         public string LastName { get; set; } = default!;
 
-        [Required]
-        public string CompanyName { get; set; } = default!;
+        public string? CompanyName { get; set; } = default!;
         [Required]
         [Phone]
         public string PhoneNumber { get; set; } = default!;
