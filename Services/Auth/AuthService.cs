@@ -15,14 +15,14 @@ namespace MP_Backend.Services.Auth
         Task RegisterAsync(RegisterDTO dto, CancellationToken ct);
         Task LoginAsync(LoginDTO dto);
         Task LogoutAsync(HttpResponse response);
-        string? GetCurrentUserId();
+        Task<AuthUserDTO> CurrentUser(CancellationToken ct);
     }
 
     public class AuthService : IAuthService
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserContextService _userContextService;
         private readonly IJwtService _jwtService;
         private readonly IAppEmailSender _emailSender;
         private readonly ApplicationDbContext _context;
@@ -33,6 +33,7 @@ namespace MP_Backend.Services.Auth
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IHttpContextAccessor httpContextAccessor,
+            IUserContextService userContextService,
             IJwtService jwtService,
             IAppEmailSender emailSender,
             ApplicationDbContext context,
@@ -40,8 +41,8 @@ namespace MP_Backend.Services.Auth
             IUserService userService)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _httpContextAccessor = httpContextAccessor;
+            _userContextService = userContextService;
             _jwtService = jwtService;
             _emailSender = emailSender;
             _context = context;
@@ -149,20 +150,26 @@ namespace MP_Backend.Services.Auth
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddDays(1)
             });
         }
 
         public Task LogoutAsync(HttpResponse response)
         {
-            response.Cookies.Delete("jwt");
+            response.Cookies.Delete("jwt", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
             return Task.CompletedTask;
         }
 
-        public string? GetCurrentUserId()
+        public async Task<AuthUserDTO> CurrentUser(CancellationToken ct)
         {
-            return _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var current = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+            return UserMapper.ToAuthUserDTO(current.UserProfile, current.IdentityUser);
         }
     }
 }

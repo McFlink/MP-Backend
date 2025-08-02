@@ -8,6 +8,7 @@ namespace MP_Backend.Models
         public string UserId { get; set; } = null!;
         public IdentityUser User { get; set; } = null!;
         public string CustomerNumber { get; set; } = null!;
+        public bool IsRetailer { get; set; }
 
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;

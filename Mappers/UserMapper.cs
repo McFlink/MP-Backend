@@ -32,6 +32,7 @@ namespace MP_Backend.Mappers
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 CustomerNumber = customerNumber,
+                IsRetailer = dto.IsRetailer,
                 PhoneNumber = dto.PhoneNumber,
                 CompanyName = dto.CompanyName,
                 Address = dto.Address,
@@ -40,6 +41,17 @@ namespace MP_Backend.Mappers
                 OrganizationNumber = dto.IsRetailer ? dto.OrganizationNumber : null,
                 BankIdVerified = false,
                 BankIdVerifiedAt = null
+            };
+        }
+
+        public static AuthUserDTO ToAuthUserDTO(UserProfile profile, IdentityUser user)
+        {
+            return new AuthUserDTO()
+            {
+                FirstName = profile.FirstName,
+                CompanyName = profile.CompanyName,
+                IsRetailer = profile.IsRetailer,
+                Email = user.Email!
             };
         }
     }

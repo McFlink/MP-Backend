@@ -50,13 +50,12 @@ namespace MP_Backend.Controllers
             return result.Succeeded ? Ok("E-post bekräftad!") : BadRequest("Bekräftelsen misslyckades.");
         }
 
-        // Temporary for debug/testing
-        [HttpGet("me")]
+        [HttpGet("user")]
         [Authorize]
-        public IActionResult Me()
+        public async Task<IActionResult> CurrentUser(CancellationToken ct)
         {
-            var userId = _authService.GetCurrentUserId();
-            return Ok(new { UserId = userId });
+            var dto = await _authService.CurrentUser(ct);
+            return Ok(dto);
         }
     }
 }
