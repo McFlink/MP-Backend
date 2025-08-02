@@ -29,8 +29,23 @@ namespace MP_Backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO dto)
         {
-            await _authService.LoginAsync(dto);
-            return Ok("Inloggad");
+            try
+            {
+                await _authService.LoginAsync(dto);
+                return Ok("Inloggad");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Ett oväntat fel inträffade" });
+            }
         }
 
         [HttpPost("logout")]
