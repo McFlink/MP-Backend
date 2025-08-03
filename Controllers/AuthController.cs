@@ -62,7 +62,10 @@ namespace MP_Backend.Controllers
             if (user == null) return BadRequest("Felaktig användare");
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
-            return result.Succeeded ? Ok("E-post bekräftad!") : BadRequest("Bekräftelsen misslyckades.");
+            if (!result.Succeeded)
+                return BadRequest("Ogiltig eller utgången verifieringslänk");
+
+            return Redirect("http://localhost:5173/login?emailConfirmed=true");
         }
 
         [HttpGet("user")]
