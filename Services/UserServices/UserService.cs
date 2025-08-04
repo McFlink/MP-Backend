@@ -26,13 +26,11 @@ namespace MP_Backend.Services.UserServices
         {
             try
             {
-                var currentUserProfileId = await _userContextService.GetCurrentUserProfileIdAsync(ct);
-                if (currentUserProfileId == Guid.Empty)
+                var user = await _userContextService.GetCurrentUserWithProfileAsync(ct);
+                if (user == null)
                     throw new InvalidOperationException("Current user is not authenticated.");
 
-                var profile = await _userRepository.GetUserProfile(currentUserProfileId, ct);
-
-                return UserMapper.ToUserProfileDTO(profile);
+                return UserMapper.ToUserProfileDTO(user);
 
             }
             catch (Exception ex)
@@ -96,7 +94,11 @@ namespace MP_Backend.Services.UserServices
 
                 var updatedProfile = await _userRepository.UpdateUserProfile(profile, ct);
 
-                return UserMapper.ToUserProfileDTO(updatedProfile);
+                return UserMapper.ToUserProfileDTO(new CurrentUserContext
+                {
+                    IdentityUser = currentUser.IdentityUser,
+                    UserProfile = updatedProfile
+                });
             }
             catch (Exception ex)
             {

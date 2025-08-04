@@ -2,24 +2,27 @@
 using MP_Backend.Models.DTOs.Users;
 using MP_Backend.Models.DTOs.Auth;
 using Microsoft.AspNetCore.Identity;
+using MP_Backend.Services.UserServices;
 
 namespace MP_Backend.Mappers
 {
     public class UserMapper
     {
-        public static UserProfileDTO ToUserProfileDTO(UserProfile userProfile)
+        public static UserProfileDTO ToUserProfileDTO(CurrentUserContext user)
         {
-            if (userProfile == null) throw new ArgumentNullException(nameof(userProfile));
+            if (user == null) throw new ArgumentNullException(nameof(user));
 
             return new UserProfileDTO
             {
-                FirstName = userProfile.FirstName,
-                LastName = userProfile.LastName,
-                PhoneNumber = userProfile.PhoneNumber,
-                Address = userProfile.Address,
-                BillingAddress = userProfile.BillingAddress,
-                OrganizationNumber = userProfile.OrganizationNumber,
-                CompanyName = userProfile.CompanyName
+                FirstName = user.UserProfile.FirstName,
+                LastName = user.UserProfile.LastName,
+                Email = user.IdentityUser.Email!,
+                PhoneNumber = user.UserProfile.PhoneNumber,
+                Address = user.UserProfile.Address,
+                BillingAddress = user.UserProfile.BillingAddress,
+                IsRetailer = user.UserProfile.IsRetailer,
+                OrganizationNumber = user.UserProfile.OrganizationNumber,
+                CompanyName = user.UserProfile.CompanyName
             };
         }
 
