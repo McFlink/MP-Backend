@@ -4,9 +4,11 @@
     {
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
+        public string Email { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string Address { get; set; } = null!;
         public string? BillingAddress { get; set; }
+        public bool IsRetailer { get; set; }
         public string? OrganizationNumber { get; set; }
         public string? CompanyName { get; set; }
     }
