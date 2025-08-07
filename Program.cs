@@ -34,6 +34,8 @@ namespace MP_Backend
                 .AddUserSecrets<Program>()
                 .AddEnvironmentVariables();
 
+            brevo_csharp.Client.Configuration.Default.ApiKey["api-key"] = builder.Configuration["Brevo:ApiKey"];
+
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -59,7 +61,7 @@ namespace MP_Backend
 
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddScoped<IAppEmailSender, SendGridEmailSender>();
+            builder.Services.AddScoped<IAppEmailSender, BrevoEmailSender>();
 
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 

@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using EllipticCurve;
 using MP_Backend.Data.Repositories.Orders;
 using MP_Backend.Data.Repositories.ProductVariants;
 using MP_Backend.Data.Repositories.Users;
@@ -136,7 +135,7 @@ namespace MP_Backend.Services.Orders
 
         private async Task SendOrderConfirmationEmailAsync(Order order, string toEmail, CancellationToken ct)
         {
-            var adminEmail = _config["SendGrid:AdminEmail1"];
+            var adminEmail = _config["Brevo:AdminEmail1"];
 
             try
             {

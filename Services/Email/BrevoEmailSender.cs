@@ -1,29 +1,31 @@
 ﻿//using DocumentFormat.OpenXml.Drawing.Charts;
 using MP_Backend.Helpers;
 using MP_Backend.Models;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using brevo_csharp;
+using brevo_csharp.Api;
+using brevo_csharp.Client;
+using brevo_csharp.Model;
+using Order = MP_Backend.Models.Order;
+
+using Task = System.Threading.Tasks.Task;
+
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MP_Backend.Services.Email
 {
-    public class SendGridEmailSender : IAppEmailSender
+    public class BrevoEmailSender : IAppEmailSender
     {
         private readonly IConfiguration _config;
 
-        public SendGridEmailSender(IConfiguration config)
+        public BrevoEmailSender(IConfiguration config)
         {
             _config = config;
         }
 
         public async Task SendEmailConfirmationLinkAsync(string toEmail, string subject, string confirmationLink)
         {
-            var apiKey = _config["SendGrid:ApiKey"];
-            var client = new SendGridClient(apiKey);
-
-            var from = new EmailAddress(_config["SendGrid:From"], "MP Fishing Supply");
-            var to = new EmailAddress(toEmail);
-            var plainTextContent = subject;
+            var apiInstance = new TransactionalEmailsApi();
+            
             var htmlContent = $@"
             <html>
               <body style=""font-family: sans-serif; background-color: #f9f9f9; padding: 20px;"">
@@ -41,18 +43,34 @@ namespace MP_Backend.Services.Email
               </body>
             </html>";
 
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-            await client.SendEmailAsync(msg);
+            var email = new SendSmtpEmail
+            {
+                Subject = subject,
+                HtmlContent = htmlContent,
+                Sender = new SendSmtpEmailSender
+                {
+                    Email = _config["Brevo:From"],
+                    Name = _config["Brevo:Name"]
+                },
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(toEmail)
+                }
+            };
+
+            try
+            {
+                await apiInstance.SendTransacEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Kunde inte skicka bekräftelsemail via Brevo", ex);
+            }
         }
 
         public async Task SendOrderConfimationEmailToUser(Order order, string toEmail, string subject, string message)
         {
-            var apiKey = _config["SendGrid:ApiKey"];
-            var client = new SendGridClient(apiKey);
-
-            var from = new EmailAddress(_config["SendGrid:From"], "MP Fishing Supply");
-            var to = new EmailAddress(toEmail);
-            var plainTextContent = subject;
+            var apiInstance = new TransactionalEmailsApi();
 
             var profile = order.UserProfile;
             var billingAddress = profile.BillingAddress ?? "Ej angiven";
@@ -133,24 +151,42 @@ namespace MP_Backend.Services.Email
 
                   <p style=""margin-top: 30px;"">Er order skickas inom 48 timmar.</p>
 
-                  <p style=""margin-top: 20px;"">Vid frågor om din beställning, vänligen kontakta oss på<br/>
-                  <strong>info@mpfishingsupply.se</strong>. Bifoga ordernummer.</p>
-
-                  <p>Detta mail går ej att svara på.</p>
+                  <p style=""margin-top: 20px;"">Vid frågor om din beställning, vänligen svara på på detta mail.</p>
 
                   <p style=""margin-top: 40px;"">Hälsningar,<br/><strong>MP Fishing Supply</strong></p>
                 </div>
               </body>
             </html>";
 
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-            await client.SendEmailAsync(msg);
+            var email = new SendSmtpEmail
+            {
+                Subject = subject,
+                TextContent = message,
+                HtmlContent = htmlContent,
+                Sender = new SendSmtpEmailSender
+                {
+                    Email = _config["Brevo:From"],
+                    Name = _config["Brevo:Name"]
+                },
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(toEmail)
+                }
+            };
+
+            try
+            {
+                await apiInstance.SendTransacEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Kunde inte skicka bekräftelsemail via Brevo", ex);
+            }
         }
 
         public async Task SendOrderConfirmationEmailToAdmin(Order order, string toEmail, string subject, string message)
         {
-            var apiKey = _config["SendGrid:ApiKey"];
-            var client = new SendGridClient(apiKey);
+            var apiInstance = new TransactionalEmailsApi();
 
             var profile = order.UserProfile;
             var billingAddress = profile.BillingAddress ?? "Ej angiven";
@@ -172,9 +208,7 @@ namespace MP_Backend.Services.Email
             decimal shippingFeeInclVat = shippingFeeExclVat * (1 + vatRate);
             decimal itemTotalInclVat = itemTotalExclVat * (1 + vatRate);
 
-            var from = new EmailAddress(_config["SendGrid:From"], $"{profile.CompanyName} - Ny Order");
-            var to = new EmailAddress(toEmail);
-            var plainTextContent = subject;
+
             var htmlContent = $@"
             <html>
               <body style=""font-family: sans-serif; background-color: #f9f9f9; padding: 20px;"">
@@ -240,8 +274,30 @@ namespace MP_Backend.Services.Email
               </body>
             </html>";
 
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, message, htmlContent);
-            await client.SendEmailAsync(msg);
+            var email = new SendSmtpEmail
+            {
+                Subject = subject,
+                TextContent = message,
+                HtmlContent = htmlContent,
+                Sender = new SendSmtpEmailSender
+                {
+                    Email = _config["Brevo:From"],
+                    Name = _config["Brevo:Name"]
+                },
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(toEmail, message)
+                }
+            };
+
+            try
+            {
+                await apiInstance.SendTransacEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Kunde inte skicka bekräftelsemail via Brevo", ex);
+            }
         }
     }
 }
