@@ -1,15 +1,10 @@
 ﻿//using DocumentFormat.OpenXml.Drawing.Charts;
+using brevo_csharp.Api;
+using brevo_csharp.Model;
 using MP_Backend.Helpers;
 using MP_Backend.Models;
-using brevo_csharp;
-using brevo_csharp.Api;
-using brevo_csharp.Client;
-using brevo_csharp.Model;
 using Order = MP_Backend.Models.Order;
-
 using Task = System.Threading.Tasks.Task;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MP_Backend.Services.Email
 {
@@ -25,7 +20,7 @@ namespace MP_Backend.Services.Email
         public async Task SendEmailConfirmationLinkAsync(string toEmail, string subject, string confirmationLink)
         {
             var apiInstance = new TransactionalEmailsApi();
-            
+
             var htmlContent = $@"
             <html>
               <body style=""font-family: sans-serif; background-color: #f9f9f9; padding: 20px;"">
@@ -67,6 +62,7 @@ namespace MP_Backend.Services.Email
                 throw new InvalidOperationException("Kunde inte skicka bekräftelsemail via Brevo", ex);
             }
         }
+
 
         public async Task SendOrderConfimationEmailToUser(Order order, string toEmail, string subject, string message)
         {
@@ -297,6 +293,122 @@ namespace MP_Backend.Services.Email
             catch (Exception ex)
             {
                 throw new InvalidOperationException("Kunde inte skicka bekräftelsemail via Brevo", ex);
+            }
+        }
+
+        public async Task SendEmailNotificationOnNewRetailerRegister(UserProfile newUser)
+        {
+            var apiInstance = new TransactionalEmailsApi();
+
+            var htmlContent = $@"
+            <html>
+              <body style=""font-family: sans-serif; background-color: #f9f9f9; padding: 20px;"">
+                <div style=""max-width: 700px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"">
+                  <h2 style=""color: #2a7f62;"">{newUser.CompanyName} (bolag) har registrerats i systemet</h2>
+                  <p>Konto skapat: {newUser.CreatedAt:f}</p>
+
+                  <h3 style=""margin-top: 30px;"">Kundinformation</h3>
+                  <p>
+                    <strong>{newUser.CompanyName}</strong><br/>
+                    Kundnummer: {newUser.CustomerNumber}<br/>
+                    Org.nr: {newUser.OrganizationNumber}<br/>
+                    E-post: {newUser.User?.Email ?? "okänd"}
+                  </p>
+
+                  <h3 style=""margin-top: 20px;"">Kontaktperson</h3>
+                  <p>{newUser.FirstName} {newUser.LastName}</p>
+
+                  <h3 style=""margin-top: 20px;"">Fakturaadress</h3>
+                  <p>{newUser.BillingAddress}</p>
+
+                  <h3 style=""margin-top: 20px;"">Leveransadress</h3>
+                  <p>{newUser.Address}</p>
+
+                  <p style=""margin-top: 40px;"">Automatiskt epost vid registrering av ny kund på<br/><strong>mpfishingsupply.se</strong></p>
+                </div>
+              </body>
+            </html>";
+
+            var admin = _config["Brevo:AdminEmail1"];
+
+            var email = new SendSmtpEmail
+            {
+                Subject = $"Ny bolag registrerat - {newUser.CompanyName}",
+                //TextContent = message,
+                HtmlContent = htmlContent,
+                Sender = new SendSmtpEmailSender
+                {
+                    Email = _config["Brevo:From"],
+                    Name = _config["Brevo:Name"]
+                },
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(admin)
+                }
+            };
+
+            try
+            {
+                await apiInstance.SendTransacEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Kunde inte skicka email via Brevo", ex);
+            }
+        }
+
+        public async Task SendEmailNotificationOnNewCustomerRegister(UserProfile newCustomer)
+        {
+            var apiInstance = new TransactionalEmailsApi();
+
+            var htmlContent = $@"
+            <html>
+              <body style=""font-family: sans-serif; background-color: #f9f9f9; padding: 20px;"">
+                <div style=""max-width: 700px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"">
+                  <h2 style=""color: #2a7f62;"">{newCustomer.FirstName} {newCustomer.LastName} (privatperson) har registrerats i systemet</h2>
+
+                  <h3 style=""margin-top: 30px;"">Kundinformation</h3>
+                  <p>
+                    Kundnummer: {newCustomer.CustomerNumber}<br/>
+                    E-post: {newCustomer.User?.Email ?? "okänd"}
+                  </p>
+
+                  <h3 style=""margin-top: 20px;"">Namn</h3>
+                  <p>{newCustomer.FirstName} {newCustomer.LastName}</p>
+
+                  <h3 style=""margin-top: 20px;"">Leveransadress</h3>
+                  <p>{newCustomer.Address}</p>
+
+                  <p style=""margin-top: 40px;"">Automatiskt epost vid registrering av ny privatperson på<br/><strong>mpfishingsupply.se</strong></p>
+                </div>
+              </body>
+            </html>";
+
+            var admin = _config["Brevo:AdminEmail1"];
+
+            var email = new SendSmtpEmail
+            {
+                Subject = "Ny användare registrerad",
+                //TextContent = message,
+                HtmlContent = htmlContent,
+                Sender = new SendSmtpEmailSender
+                {
+                    Email = _config["Brevo:From"],
+                    Name = _config["Brevo:Name"]
+                },
+                To = new List<SendSmtpEmailTo>
+                {
+                    new SendSmtpEmailTo(admin)
+                }
+            };
+
+            try
+            {
+                await apiInstance.SendTransacEmailAsync(email);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Kunde inte skicka email via Brevo", ex);
             }
         }
     }
