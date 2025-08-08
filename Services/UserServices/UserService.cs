@@ -51,7 +51,7 @@ namespace MP_Backend.Services.UserServices
                 ValidateEmailFormat(newEmail);
 
                 var existingUser = await _userManager.FindByEmailAsync(newEmail);
-                if (existingUser == null && existingUser.Id != currentUser.IdentityUser.Id)
+                if (existingUser != null && existingUser.Id != currentUser.IdentityUser.Id)
                     throw new InvalidOperationException("E-posten används redan");
 
                 var user = currentUser.IdentityUser;
