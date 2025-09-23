@@ -9,7 +9,7 @@ namespace MP_Backend.Controllers
 {
     [Authorize(Roles = Roles.Retailer)]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/orders")]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;
@@ -21,18 +21,18 @@ namespace MP_Backend.Controllers
             _userContextService = userContextService;
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO dto, CancellationToken ct)
         {
             var orderId = await _orderService.CreateOrderAsync(dto, ct);
-            return CreatedAtAction(nameof(GetOrderById), new { orderId }, null);
+            return CreatedAtAction(nameof(GetOrderById), new { id = orderId }, null);
         }
 
 
-        [HttpGet("{orderId}")]
-        public async Task<ActionResult<OrderSummaryDTO>> GetOrderById(Guid orderId, CancellationToken ct)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderSummaryDTO>> GetOrderById(Guid id, CancellationToken ct)
         {
-            var order = await _orderService.GetByOrderIdAsync(orderId, ct);
+            var order = await _orderService.GetByOrderIdAsync(id, ct);
             return Ok(order);
         }
 
