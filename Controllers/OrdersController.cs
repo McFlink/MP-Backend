@@ -9,19 +9,21 @@ namespace MP_Backend.Controllers
 {
     [Authorize(Roles = Roles.Retailer)]
     [ApiController]
-    [Route("api/orders")]
-    public class OrderController : ControllerBase
+    [Route("api/[controller]")]
+    public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
         private readonly IUserContextService _userContextService;
 
-        public OrderController(IOrderService orderService, IUserContextService userContextService)
+        public OrdersController(IOrderService orderService, IUserContextService userContextService)
         {
             _orderService = orderService;
             _userContextService = userContextService;
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(OrderSummaryDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO dto, CancellationToken ct)
         {
             var orderId = await _orderService.CreateOrderAsync(dto, ct);
@@ -29,28 +31,29 @@ namespace MP_Backend.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<ActionResult<OrderSummaryDTO>> GetOrderById(Guid id, CancellationToken ct)
         {
             var order = await _orderService.GetByOrderIdAsync(id, ct);
             return Ok(order);
         }
 
-        [HttpGet("summary")]
-        public async Task<ActionResult<OrderSummaryDTO>> GetPreviousOrdersSummary(CancellationToken ct)
+        [HttpGet]
+        public async Task<IActionResult> GetOrders([FromQuery] bool detailed = false, CancellationToken ct = default)
         {
-            var orders = await _orderService.GetPreviousOrdersAsync(ct);
-            return Ok(orders);
+            if (detailed)
+            {
+                var detailedOrders = await _orderService.GetPreviousOrdersWithDetailsAsync(ct);
+                return Ok(detailedOrders);
+            }
+            else
+            {
+                var summaryOrders = await _orderService.GetPreviousOrdersAsync(ct);
+                return Ok(summaryOrders);
+            }
         }
 
-        [HttpGet("detailed")]
-        public async Task<ActionResult<OrderDetailedDTO>> GetPreviousOrdersWithDetails(CancellationToken ct)
-        {
-            var orders = await _orderService.GetPreviousOrdersWithDetailsAsync(ct);
-            return Ok(orders);
-        }
-
-        [HttpGet("download-excel")]
+        [HttpGet("export/excel")]
         public async Task<IActionResult> DownloadOrderHistory(CancellationToken ct)
         {
             var currentUserId = await _userContextService.GetCurrentUserProfileIdAsync(ct);
